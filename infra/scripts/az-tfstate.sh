@@ -3,7 +3,7 @@
 RESOURCE_GROUP_NAME=tfstate
 STORAGE_ACCOUNT_NAME=tfstate$RANDOM
 CONTAINER_NAME=tfstate
-LOCATION=westeurope
+LOCATION=eastus
 
 # Create resource group
 az group create --name $RESOURCE_GROUP_NAME --location $LOCATION

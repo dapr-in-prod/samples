@@ -1,9 +1,67 @@
-# samples
+# Dapr-in-Production examples
 
-## links Container Apps with Terraform
+> STATUS : **UNDER CONSTRUCTION**
 
-https://github.com/piizei/terraform-container-apps/blob/main/terraform/capps.tf
+## Repository structure
 
-https://www.thorsten-hans.com/deploy-azure-container-apps-with-terraform/#bootstrap-the-project-with-azurerm-and-azapi-providers
+Main folders represent deployment layers 
 
-https://github.com/KamalRathnayake/MeetKamalToday./blob/19f215cbfc532732f755ba958cd782aa71fab8e6/100-container-apps-terraform/main.tf
+- `infra` : contains infrastructure (cloud) resources which are required to host samples applications
+- `apps` : sample applications
+
+## Prequisites
+
+### Azure
+
+To use Azure examples in this repository these tools are required:
+
+- Azure CLI version >= `2.42.0`
+
+Before starting deployments, optionally execute these steps 
+
+- set `LOCATION=westus` in `./infra/scripts/az-tfstate.sh` to the region you wish to place your Terraform state store
+- `az login` to your Azure account and set the desired subscription with `az account set -s {subscription-id}`
+- create a service principal e.g. with `az ad sp create-for-rbac --name "My Terraform Service Principal" --role="Contributor" --scopes="/subscriptions/$(az account show --query id -o tsv)"` to create and assign `Contributor` authorizations on the subscription currently set in Azure CLI
+- from the output like
+
+```
+{
+  "appId": "00000000-0000-0000-0000-000000000000",
+  "displayName": "My Terraform Service Principal",
+  "password": "0000-0000-0000-0000-000000000000",
+  "tenant": "00000000-0000-0000-0000-000000000000"
+}
+```
+
+note down, create a script or extend your session initialization script like `.bashr` or `.zshrc` to set Terraform environment variables: 
+
+```shell
+export ARM_SUBSCRIPTION_ID="{subscription-id}"
+export ARM_TENANT_ID="{tenant}"
+export ARM_CLIENT_ID="{appId}"
+export ARM_CLIENT_SECRET="{password}"
+```
+
+### Terraform
+
+All infrastructure in this repository is defined with [Terraform templates](https://www.terraform.io/) which requires these tools:
+
+- Terraform CLI version >= `1.3.2`
+
+## Example deployments
+
+### deployment on Azure with Terraform
+
+> review and install Azure and Terraform prerequisites
+
+1. change into the folder of the desired sample e.g. `cd ./infra/aca-terraform`
+1. configure state store and initialize e.g. with Azure storage `../scripts/az-tfstate.sh`
+1. create `terraform.tfvars` to define desired resource group and location/region
+
+```terraform
+location      = "westus"
+resourceGroup = "rg-dip-aca"
+```
+
+4. review deployment plan with `terraform plan`
+1. deploy with `terraform apply`

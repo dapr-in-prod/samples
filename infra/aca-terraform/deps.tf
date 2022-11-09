@@ -5,7 +5,7 @@ resource "azurerm_resource_group" "rg" {
 }
 
 resource "azurerm_log_analytics_workspace" "log" {
-  name                = "log-aca"
+  name                = "dip-aca-log"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
 
@@ -16,7 +16,7 @@ resource "azurerm_log_analytics_workspace" "log" {
 }
 
 resource "azurerm_application_insights" "ai" {
-  name                = "ai-aca"
+  name                = "dip-aca-ai"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   application_type    = "web"
