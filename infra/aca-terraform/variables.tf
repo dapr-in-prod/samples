@@ -9,3 +9,9 @@ variable "resourceGroup" {
   default     = "rg-dip-aca"
   description = "Desired Resource Group Name"
 }
+
+variable "resourcePrefix" {
+  type        = string
+  default     = "dipaca"
+  description = "Desired Resource Prefix to be used for all resources"
+}

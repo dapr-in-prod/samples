@@ -19,7 +19,6 @@ To use Azure examples in this repository these tools are required:
 
 Before starting deployments, optionally execute these steps 
 
-- set `LOCATION=westus` in `./infra/scripts/az-tfstate.sh` to the region you wish to place your Terraform state store
 - `az login` to your Azure account and set the desired subscription with `az account set -s {subscription-id}`
 - create a service principal e.g. with `az ad sp create-for-rbac --name "My Terraform Service Principal" --role="Contributor" --scopes="/subscriptions/$(az account show --query id -o tsv)"` to create and assign `Contributor` authorizations on the subscription currently set in Azure CLI
 - from the output like
@@ -42,6 +41,8 @@ export ARM_CLIENT_ID="{appId}"
 export ARM_CLIENT_SECRET="{password}"
 ```
 
+- assign RBAC management authorization to service principal with `az role assignment create --role 'Role Based Access Control Administrator (Preview)' --scope /subscriptions/$ARM_SUBSCRIPTION_ID --assignee $ARM_CLIENT_ID` so that various role assignments can be conducted by Terraform
+
 ### Terraform
 
 All infrastructure in this repository is defined with [Terraform templates](https://www.terraform.io/) which requires these tools:
@@ -55,7 +56,8 @@ All infrastructure in this repository is defined with [Terraform templates](http
 > review and install Azure and Terraform prerequisites
 
 1. change into the folder of the desired sample e.g. `cd ./infra/aca-terraform`
-1. configure state store and initialize e.g. with Azure storage `../scripts/az-tfstate.sh`
+1. be sure to clear previous state with `rm .terraform.lock.hcl` and `rm -rf .terraform` 
+1. configure state store and initialize e.g. with Azure storage `../scripts/az-tfstate.sh {location}` where _location_ sets the region, where the statestore is placed (otherwise eastus will be used as a default)
 1. create `terraform.tfvars` to define desired resource group and location/region
 
 ```terraform
