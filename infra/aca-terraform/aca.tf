@@ -58,12 +58,27 @@ resource "azapi_resource" "container_app" {
           {
             name  = "simple-js"
             image = "${azurerm_container_registry.acr.login_server}/simple-js:latest"
-            env = [
-            ]
+            env   = []
             resources = {
               cpu    = ".25"
               memory = ".5Gi"
             }
+            probes = [
+              {
+                type = "Liveness"
+                httpGet = {
+                  port = 5001
+                  path = "health"
+                }
+              },
+              {
+                type = "Readiness"
+                httpGet = {
+                  port = 5001
+                  path = "health"
+                }
+              }
+            ]
           }
         ]
         scale = {

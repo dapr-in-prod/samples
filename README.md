@@ -49,9 +49,23 @@ All infrastructure in this repository is defined with [Terraform templates](http
 
 - Terraform CLI version >= `1.3.2`
 
+### Sample Apps
+
+This section lists all (local) requirements for the particular sample applications:
+
+#### simple-js
+
+- Node.js v16
+
+----
+
 ## Example deployments
 
+This section describes how to deploy infrastructure and sample applications.
+
 ### deployment on Azure with Terraform
+
+#### Infrastructure
 
 > review and install Azure and Terraform prerequisites
 
@@ -67,3 +81,8 @@ resourceGroup = "rg-dip-aca"
 
 4. review deployment plan with `terraform plan`
 1. deploy with `terraform apply`
+
+#### Apps
+
+1. change into the folder of the desired sample e.g. `cd ./apps/simple-js`
+1. build and deploy to Container Apps with `../scripts/aca-deploy.sh`

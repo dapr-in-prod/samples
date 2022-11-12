@@ -15,6 +15,13 @@ terraform {
 
 provider "azurerm" {
   features {
+    resource_group {
+      # only keep this setting while evaluating - remove for production
+      prevent_deletion_if_contains_resources = false
+    }
+    application_insights {
+      disable_generated_rule = true
+    }
   }
 }
 

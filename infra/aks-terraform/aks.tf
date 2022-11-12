@@ -14,17 +14,11 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   identity {
-    type = "SystemAssigned"
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.acr_pull_identity.id]
   }
 
   role_based_access_control_enabled = true
 
   tags = local.tags
-}
-
-resource "azurerm_role_assignment" "aks_acr_assignment" {
-  principal_id                     = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
-  role_definition_name             = "AcrPull"
-  scope                            = azurerm_container_registry.acr.id
-  skip_service_principal_aad_check = true
 }
