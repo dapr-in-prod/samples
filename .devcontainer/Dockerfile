@@ -1,51 +1,18 @@
-# You can pick any Debian/Ubuntu-based image. 😊
-FROM mcr.microsoft.com/devcontainers/base:bullseye
+ARG VARIANT="3.16"
+FROM mcr.microsoft.com/vscode/devcontainers/base:0-alpine-${VARIANT}
 
-COPY library-scripts/*.sh /tmp/library-scripts/
+RUN apk update
+RUN apk add py3-pip
+RUN apk add gcc musl-dev python3-dev libffi-dev openssl-dev cargo make
+RUN pip install --upgrade pip
+RUN pip install azure-cli
 
-# [Option] Install zsh
-ARG INSTALL_ZSH="true"
-# [Option] Upgrade OS packages to their latest versions
-ARG UPGRADE_PACKAGES="true"
+RUN release=`curl -s https://api.github.com/repos/hashicorp/terraform/releases/latest |  grep tag_name | cut -d: -f2 | tr -d \"\,\v | awk '{$1=$1};1'` && \
+ wget https://releases.hashicorp.com/terraform/${release}/terraform_${release}_linux_amd64.zip && \
+ unzip terraform_${release}_linux_amd64.zip && \
+ mv terraform /usr/bin/terraform
 
-# Install needed packages and setup non-root user. Use a separate RUN statement to add your own dependencies.
-ARG USERNAME=vscode
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
-RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && bash /tmp/library-scripts/common-debian.sh "${INSTALL_ZSH}" "${USERNAME}" "${USER_UID}" "${USER_GID}" "${UPGRADE_PACKAGES}" "true" "true" \ 
-    && apt-get install -y graphviz \
-    && apt-get clean -y && rm -rf /var/lib/apt/lists/*
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
+ install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
-# [Option] Install Azure CLI
-ARG INSTALL_AZURE_CLI="true"
-# [Option] Install Docker CLI
-ARG INSTALL_DOCKER="true"
-# [Choice] Node.js version: none, lts/*, 16, 14, 12, 10
-ARG NODE_VERSION="16"
-ENV NVM_DIR=/usr/local/share/nvm
-ENV NVM_SYMLINK_CURRENT=true \
-    PATH=${NVM_DIR}/current/bin:${PATH}
-RUN if [ "${INSTALL_AZURE_CLI}" = "true" ]; then bash /tmp/library-scripts/azcli-debian.sh; fi \
-    && if [ "${NODE_VERSION}" != "none" ]; then bash /tmp/library-scripts/node-debian.sh "${NVM_DIR}" "${NODE_VERSION}" "${USERNAME}"; fi \
-    && if [ "${INSTALL_DOCKER}" = "true" ]; then \
-        bash /tmp/library-scripts/docker-debian.sh "true" "/var/run/docker-host.sock" "/var/run/docker.sock" "${USERNAME}"; \
-    else \
-        echo '#!/bin/bash\n"$@"' > /usr/local/share/docker-init.sh && chmod +x /usr/local/share/docker-init.sh; \
-    fi \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install Terraform, tflint, Terragrunt
-ARG TERRAFORM_VERSION=1.3.4
-ARG TFLINT_VERSION=0.42.2
-ARG TERRAGRUNT_VERSION=0.40.2
-RUN bash /tmp/library-scripts/terraform-debian.sh "${TERRAFORM_VERSION}" "${TFLINT_VERSION}" "${TERRAGRUNT_VERSION}" \
-    && rm -rf /tmp/library-scripts
-
-
-ENTRYPOINT [ "/usr/local/share/docker-init.sh" ]
-CMD [ "sleep", "infinity" ]
-
-# [Optional] Uncomment this section to install additional OS packages.
-# RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-#     && apt-get -y install --no-install-recommends <your-package-list-here>
+RUN wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash
