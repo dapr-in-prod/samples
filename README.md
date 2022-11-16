@@ -4,7 +4,11 @@
 
 ## Repository structure
 
-Main folders represent deployment layers 
+Main folders represent chapters in book, `common` contains Terraform modules and Bash scripts used commonly
+
+- `chapter-2` : Installing and Managing Dapr 
+
+Sub folders in main folders represent deployment layers 
 
 - `infra` : contains infrastructure (cloud) resources which are required to host samples applications
 - `apps` : sample applications
@@ -69,7 +73,7 @@ This section describes how to deploy infrastructure and sample applications.
 
 > review and install Azure and Terraform prerequisites
 
-1. change into the folder of the desired sample e.g. `cd ./infra/aca-terraform`
+1. change into the folder of the desired sample e.g. `cd ./chapter-1/infra/aca-terraform`
 1. be sure to clear previous state with `rm .terraform.lock.hcl` and `rm -rf .terraform` 
 1. configure state store and initialize e.g. with Azure storage `../scripts/az-tfstate.sh {location}` where _location_ sets the region, where the statestore is placed (otherwise eastus will be used as a default)
 1. create `terraform.tfvars` to define desired resource group and location/region
@@ -84,5 +88,5 @@ resourceGroup = "rg-dip-aca"
 
 #### Apps
 
-1. change into the folder of the desired sample e.g. `cd ./apps/simple-js`
+1. change into the folder of the desired sample e.g. `cd ./chapter-1/apps/simple-js`
 1. build and deploy to Container Apps with `../scripts/aca-deploy.sh`
