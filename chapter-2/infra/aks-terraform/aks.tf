@@ -15,7 +15,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   identity {
     type         = "UserAssigned"
-    identity_ids = [azurerm_user_assigned_identity.acr_pull_identity.id]
+    identity_ids = [module.common.acr_identity]
   }
 
   role_based_access_control_enabled = true

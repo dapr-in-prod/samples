@@ -10,8 +10,8 @@ resource "azapi_resource" "aca_env" {
       "appLogsConfiguration" : {
         "destination" : "log-analytics"
         "logAnalyticsConfiguration" : {
-          "customerId" : azurerm_log_analytics_workspace.log.workspace_id
-          "sharedKey" : azurerm_log_analytics_workspace.log.primary_shared_key
+          "customerId" : module.common.la_workspace_id
+          "sharedKey" : module.common.la_shared_key
         }
       }
     }
@@ -28,7 +28,7 @@ resource "azapi_resource" "container_app" {
 
   identity {
     type         = "UserAssigned"
-    identity_ids = [azurerm_user_assigned_identity.acr_pull_identity.id]
+    identity_ids = [module.common.acr_identity]
   }
 
   body = jsonencode({
@@ -49,15 +49,15 @@ resource "azapi_resource" "container_app" {
           enabled     = true
         }
         registries = [{
-          server   = azurerm_container_registry.acr.login_server
-          identity = azurerm_user_assigned_identity.acr_pull_identity.id
+          server   = module.common.acr_login_server
+          identity = module.common.acr_identity
         }]
       }
       template = {
         containers = [
           {
             name  = "simple-js"
-            image = "${azurerm_container_registry.acr.login_server}/simple-js:latest"
+            image = "${module.common.acr_login_server}/simple-js:latest"
             env   = []
             resources = {
               cpu    = ".25"
