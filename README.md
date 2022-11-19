@@ -80,7 +80,7 @@ This section describes how to deploy infrastructure and sample applications.
 
 ```terraform
 location      = "westus"
-resourceGroup = "rg-dip-aca"
+resource_group = "rg-dip-aca"
 ```
 
 4. review deployment plan with `terraform plan`

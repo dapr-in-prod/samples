@@ -7,22 +7,37 @@ REVISION=`date +"%s"`
 
 source <(sed 's/\s//g' $TFVARS)
 
-echo -e "App Id + Image: $APPNAME\nResource Group: $resourceGroup"
+echo -e "App Id + Image: $APPNAME\nResource Group: $resource_group"
 
-if [ $(az group exists --name $resourceGroup) = true ];
+if [ $(az group exists --name $resource_group) = true ];
 then
-    ACRNAME=`az acr list -g $resourceGroup --query [0].name -o tsv`
-    ACRLOGINSERVER=`az acr list -g $resourceGroup --query [0].loginServer -o tsv`
+    ACRNAME=`az acr list -g $resource_group --query [0].name -o tsv`
+    ACRLOGINSERVER=`az acr list -g $resource_group --query [0].loginServer -o tsv`
+    ACANAME=`az containerapp env list -g $resource_group --query '[0].name' -o tsv`
+    ACRPULLID=`az identity list -g $resource_group --query "[?contains(name,'acrpull')].id" -o tsv`
 else
-    echo "$resourceGroup not found"
+    echo "$resource_group not found"
 fi
 
-echo "Registry: $ACRNAME"
+echo "Registry: $ACRNAME | Container Apps Environment: $ACANAME"
 
-if [ ! -z "$ACRNAME" ]; then
-    az acr build -r $ACRNAME -t $APPNAME:$REVISION -t $APPNAME:latest .
+if [ ! -z "$ACRNAME" ] && [ ! -z "$ACANAME" ];
+then
+    az acr build -r $ACRNAME -g $resource_group \
+        -t $APPNAME:$REVISION -t $APPNAME:latest .
 
-    az containerapp update -n $APPNAME -g $resourceGroup \
+    if [ -z $(az containerapp list --environment $ACANAME -g $resource_group --query '[?name == "$APPNAME"].id' -o tsv)];
+    then
+        az containerapp create -n $APPNAME -g $resource_group \
+            --environment $ACANAME \
+            --min-replicas 1 --max-replicas 1 \
+            --registry-server $ACRLOGINSERVER --registry-identity $ACRPULLID \
+            --ingress external --target-port 5001 \
+            --enable-dapr --dapr-app-id $APPNAME --dapr-app-port 5001 \
             --image $ACRLOGINSERVER/$APPNAME:$REVISION
+    else
+        az containerapp update -n $APPNAME -g $resource_group \
+            --image $ACRLOGINSERVER/$APPNAME:$REVISION
+    fi
 fi
 

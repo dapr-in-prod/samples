@@ -1,10 +1,10 @@
 resource "random_pet" "akssuffix" {}
 
 resource "azurerm_kubernetes_cluster" "aks" {
-  name                = var.resourcePrefix
+  name                = var.resource_prefix
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  dns_prefix          = "${var.resourcePrefix}-${random_pet.akssuffix.id}"
+  dns_prefix          = "${var.resource_prefix}-${random_pet.akssuffix.id}"
 
   default_node_pool {
     name            = "default"

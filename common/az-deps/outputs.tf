@@ -1,3 +1,7 @@
+output "acr_name" {
+  value = azurerm_container_registry.acr.name
+}
+
 output "acr_login_server" {
   value = azurerm_container_registry.acr.login_server
 }
@@ -11,6 +15,14 @@ output "la_workspace_id" {
 }
 
 output "la_shared_key" {
-  value = azurerm_log_analytics_workspace.log.primary_shared_key
+  value     = azurerm_log_analytics_workspace.log.primary_shared_key
   sensitive = true
+}
+
+output "kv_name" {
+  value = azurerm_key_vault.kv.name
+}
+
+output "kv_consumer_clientid" {
+  value = azurerm_user_assigned_identity.kv_consumer_identity.client_id
 }

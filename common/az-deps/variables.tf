@@ -1,19 +1,25 @@
 variable "location" {
   type        = string
   default     = "eastus"
-  description = "Desired Azure Region"
+  description = "Azure Region"
 }
 
 variable "resource_group" {
   type        = string
   default     = "rg-dip-aks"
-  description = "Desired Resource Group Name"
+  description = "Resource Group Name"
 }
 
 variable "resource_prefix" {
   type        = string
   default     = "dipaks"
-  description = "Desired Resource Prefix to be used for all resources"
+  description = "Resource Prefix to be used for all resources"
+}
+
+variable "tags" {
+  type        = map(string)
+  description = "Tags to set for all resources"
+  default     = {}
 }
 
 variable "soft_delete_retention_days" {
@@ -26,4 +32,10 @@ variable "purge_protection_enabled" {
   type        = bool
   default     = true
   description = "Enables purge protection on Azure Key Vault"
+}
+
+variable "secretstore_admins" {
+  type = list(string)
+  default = []
+  description = "List of Key Vault administrator object / principal Ids"
 }

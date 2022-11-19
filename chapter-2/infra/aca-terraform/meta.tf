@@ -22,6 +22,10 @@ provider "azurerm" {
     application_insights {
       disable_generated_rule = true
     }
+    key_vault {
+      # only keep this setting while evaluating - remove for production
+      purge_soft_delete_on_destroy = true
+    }
   }
 }
 
