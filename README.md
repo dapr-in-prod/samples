@@ -73,14 +73,17 @@ This section describes how to deploy infrastructure and sample applications.
 
 > review and install Azure and Terraform prerequisites
 
-1. change into the folder of the desired sample e.g. `cd ./chapter-1/infra/aca-terraform`
+1. change into the folder of the desired sample e.g. `cd ./chapter-2/infra/aca-terraform`
 1. be sure to clear previous state with `rm .terraform.lock.hcl` and `rm -rf .terraform` 
 1. configure state store and initialize e.g. with Azure storage `../scripts/az-tfstate.sh {location}` where _location_ sets the region, where the statestore is placed (otherwise eastus will be used as a default)
 1. create `terraform.tfvars` to define desired resource group and location/region
 
 ```terraform
-location      = "westus"
-resource_group = "rg-dip-aca"
+location                 = "westus"
+resource_group           = "rg-dip-aca"
+resource_prefix          = "dipaca"
+purge_protection_enabled = false
+secretstore_admins       = ["00000000-0000-0000-0000-000000000000"]
 ```
 
 4. review deployment plan with `terraform plan`
@@ -88,5 +91,5 @@ resource_group = "rg-dip-aca"
 
 #### Apps
 
-1. change into the folder of the desired sample e.g. `cd ./chapter-1/apps/simple-js`
+1. change into the folder of the desired sample e.g. `cd ./chapter-2/apps/simple-js`
 1. build and deploy to Container Apps with `../scripts/aca-deploy.sh`

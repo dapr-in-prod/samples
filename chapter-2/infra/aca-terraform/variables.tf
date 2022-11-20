@@ -27,3 +27,9 @@ variable "purge_protection_enabled" {
   default     = true
   description = "Enables purge protection on Azure Key Vault"
 }
+
+variable "secretstore_admins" {
+  type        = list(string)
+  default     = []
+  description = "List of Key Vault administrator object / principal Ids"
+}
