@@ -1,3 +1,5 @@
+# https://learn.microsoft.com/en-us/samples/azure-samples/private-aks-cluster-terraform-devops/private-aks-cluster-terraform-devops/
+
 resource "random_pet" "akssuffix" {}
 
 resource "azurerm_kubernetes_cluster" "aks" {

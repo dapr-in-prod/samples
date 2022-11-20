@@ -15,6 +15,7 @@ then
     ACRLOGINSERVER=`az acr list -g $resource_group --query [0].loginServer -o tsv`
     ACANAME=`az containerapp env list -g $resource_group --query '[0].name' -o tsv`
     ACRPULLID=`az identity list -g $resource_group --query "[?contains(name,'acrpull')].id" -o tsv`
+    KVCONSUMERID=`az identity list -g $resource_group --query "[?contains(name,'kvconsumer')].id" -o tsv`
 else
     echo "$resource_group not found"
 fi
@@ -32,6 +33,7 @@ then
             --environment $ACANAME \
             --min-replicas 1 --max-replicas 1 \
             --registry-server $ACRLOGINSERVER --registry-identity $ACRPULLID \
+            --user-assigned $KVCONSUMERID \
             --ingress external --target-port 5001 \
             --enable-dapr --dapr-app-id $APPNAME --dapr-app-port 5001 \
             --image $ACRLOGINSERVER/$APPNAME:$REVISION
@@ -39,5 +41,6 @@ then
         az containerapp update -n $APPNAME -g $resource_group \
             --image $ACRLOGINSERVER/$APPNAME:$REVISION
     fi
+
 fi
 

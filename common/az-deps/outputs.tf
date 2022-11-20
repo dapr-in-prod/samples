@@ -23,6 +23,14 @@ output "kv_name" {
   value = azurerm_key_vault.kv.name
 }
 
+output "kv_id" {
+  value = azurerm_key_vault.kv.id
+}
+
 output "kv_consumer_clientid" {
   value = azurerm_user_assigned_identity.kv_consumer_identity.client_id
+}
+
+output "kv_sp_admin_assignment" {
+  value = azurerm_role_assignment.kv_sp_admin_assignment.id
 }

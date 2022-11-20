@@ -15,8 +15,14 @@ resource "azurerm_key_vault" "kv" {
 }
 
 resource "azurerm_role_assignment" "kv_admin_assignment" {
-  for_each             = toset(concat(var.secretstore_admins, [data.azurerm_client_config.current.object_id]))
+  for_each             = toset(var.secretstore_admins)
   principal_id         = each.value
+  role_definition_name = "Key Vault Administrator"
+  scope                = azurerm_key_vault.kv.id
+}
+
+resource "azurerm_role_assignment" "kv_sp_admin_assignment" {
+  principal_id         = data.azurerm_client_config.current.object_id
   role_definition_name = "Key Vault Administrator"
   scope                = azurerm_key_vault.kv.id
 }
