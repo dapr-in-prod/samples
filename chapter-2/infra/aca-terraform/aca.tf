@@ -53,7 +53,7 @@ resource "azapi_resource" "dapr_component_secretstore" {
 
 #   identity {
 #     type         = "UserAssigned"
-#     identity_ids = [module.common.acr_identity]
+#     identity_ids = [module.common.acr_pull_id]
 #   }
 
 #   body = jsonencode({
@@ -75,7 +75,7 @@ resource "azapi_resource" "dapr_component_secretstore" {
 #         }
 #         registries = [{
 #           server   = module.common.acr_login_server
-#           identity = module.common.acr_identity
+#           identity = module.common.acr_pull_id
 #         }]
 #       }
 #       template = {
