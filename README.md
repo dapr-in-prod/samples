@@ -49,9 +49,10 @@ export ARM_CLIENT_SECRET="{password}"
 
 ### Terraform
 
-All infrastructure in this repository is defined with [Terraform templates](https://www.terraform.io/) which requires these tools:
+All infrastructure in this repository is defined with [Terraform templates](https://www.terraform.io/) with linked [Helm charts](https://helm.sh/) which requires these tools:
 
 - Terraform CLI version >= `1.3.2`
+- Helm CLI version >= `3.9.4`
 
 ### Sample Apps
 

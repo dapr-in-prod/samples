@@ -15,6 +15,6 @@ fi
 echo "Cluster: $AKSNAME"
 
 if [ ! -z "$AKSNAME" ]; then
-    az aks get-credentials -g $resource_group -n $AKSNAME
+    az aks get-credentials -g $resource_group -n $AKSNAME --admin
 fi
 

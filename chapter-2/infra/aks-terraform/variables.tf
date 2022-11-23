@@ -28,8 +28,26 @@ variable "purge_protection_enabled" {
   description = "Enables purge protection on Azure Key Vault"
 }
 
+variable "cluster_admins" {
+  type = list(string)
+  default = []
+  description = "List of cluster administrators"
+}
+
 variable "secretstore_admins" {
   type = list(string)
   default = []
   description = "List of Key Vault administrator object / principal Ids"
+}
+
+variable "dapr_version" {
+  type        = string
+  default     = "1.9.4"
+  description = "Dapr version to install with Helm charts"
+}
+
+variable "dapr_namespace" {
+  type        = string
+  default     = "dapr-system"
+  description = "Kubernetes namespace to install Dapr in"
 }

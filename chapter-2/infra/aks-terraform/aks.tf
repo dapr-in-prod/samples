@@ -1,22 +1,8 @@
+data "azurerm_client_config" "current" {}
+
 # https://learn.microsoft.com/en-us/samples/azure-samples/private-aks-cluster-terraform-devops/private-aks-cluster-terraform-devops/
 
 resource "random_pet" "akssuffix" {}
-
-resource "null_resource" "enable_oidci_issuer" {
-  provisioner "local-exec" {
-    command = <<-EOT
-      az feature register --name EnableOIDCIssuerPreview --namespace Microsoft.ContainerService
-    EOT
-  }
-}
-
-resource "null_resource" "enable_workload_identity" {
-  provisioner "local-exec" {
-    command = <<-EOT
-      az feature register --name EnableWorkloadIdentityPreview --namespace Microsoft.ContainerService
-    EOT
-  }
-}
 
 resource "azurerm_kubernetes_cluster" "aks" {
   name                = var.resource_prefix
@@ -24,14 +10,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
   location            = azurerm_resource_group.rg.location
   dns_prefix          = "${var.resource_prefix}-${random_pet.akssuffix.id}"
 
-  depends_on = [
-    null_resource.enable_oidci_issuer,
-    null_resource.enable_workload_identity
-  ]
-
   default_node_pool {
     name            = "default"
-    node_count      = 2
+    node_count      = 3
     vm_size         = "Standard_B2s"
     os_disk_size_gb = 30
   }
@@ -41,18 +22,16 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   role_based_access_control_enabled = true
+  azure_active_directory_role_based_access_control {
+    managed                = true
+    admin_group_object_ids = var.cluster_admins
+  }
 
   oms_agent {
     log_analytics_workspace_id = module.common.la_id
   }
 
   tags = local.tags
-}
-
-resource "azurerm_role_assignment" "acr_role_assignment" {
-  principal_id         = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
-  scope                = module.common.acr_id
-  role_definition_name = "AcrPull"
 }
 
 resource "azurerm_log_analytics_solution" "aks_insights" {
@@ -66,4 +45,12 @@ resource "azurerm_log_analytics_solution" "aks_insights" {
     publisher = "Microsoft"
     product   = "OMSGallery/ContainerInsights"
   }
+}
+
+# assign roles required for Container Registry pull
+
+resource "azurerm_role_assignment" "acr_role_assignment" {
+  principal_id         = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
+  scope                = module.common.acr_id
+  role_definition_name = "AcrPull"
 }
