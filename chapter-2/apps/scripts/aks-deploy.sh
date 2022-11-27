@@ -79,33 +79,54 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: simple-js
+  name: ${APPNAME}
   namespace: ${NAMESPACE}
   labels:
-    app: simple-js
+    app: ${APPNAME}
 spec:
   selector:
-    app: simple-js
+    app: ${APPNAME}
   ports:
-    - port: 5001
-  type: LoadBalancer
+  - port: 5001
+    targetPort: 5001
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ${APPNAME}
+  namespace: ${NAMESPACE}
+  annotations:
+    kubernetes.io/ingress.class: azure/application-gateway
+    appgw.ingress.kubernetes.io/override-frontend-port: "8080"
+    appgw.ingress.kubernetes.io/health-probe-path: "/health"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /*
+        backend:
+          service:
+            name: ${APPNAME}
+            port:
+              number: 5001
+        pathType: Exact
 ---
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: simple-js
+  name: ${APPNAME}
   namespace: ${NAMESPACE}
   labels:
-    app: simple-js
+    app: ${APPNAME}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: simple-js
+      app: ${APPNAME}
   template:
     metadata:
       labels:
-        app: simple-js
+        app: ${APPNAME}
         aadpodidbinding: ${KVCONSUMERNAME}
       annotations:
         dapr.io/enabled: "true"
@@ -113,7 +134,7 @@ spec:
         dapr.io/app-port: "5001"
     spec:
       containers:
-      - name: simple-js
+      - name: ${APPNAME}
         image: ${IMAGE}
         ports:
         - containerPort: 5001
@@ -130,36 +151,3 @@ spec:
   - name: vaultName
     value: ${KVFQDN}
 EOF
-
-# cat <<EOF | kubectl apply -f -
-# apiVersion: v1
-# kind: Pod
-# metadata:
-#   namespace: ${NAMESPACE}
-#   name: demo
-#   labels:
-#     aadpodidbinding: ${AAD_IDENTITY_NAME}
-# spec:
-#   containers:
-#   - name: demo
-#     image: mcr.microsoft.com/k8s/aad-pod-identity/demo:1.2
-#     args:
-#       - --subscriptionid=${SUBSCRIPTION_ID}
-#       - --clientid=${KVCONSUMERCLIENTID}
-#       - --resourcegroup=${resource_group}
-#     env:
-#       - name: MY_POD_NAME
-#         valueFrom:
-#           fieldRef:
-#             fieldPath: metadata.name
-#       - name: MY_POD_NAMESPACE
-#         valueFrom:
-#           fieldRef:
-#             fieldPath: metadata.namespace
-#       - name: MY_POD_IP
-#         valueFrom:
-#           fieldRef:
-#             fieldPath: status.podIP
-#   nodeSelector:
-#     kubernetes.io/os: linux
-# EOF
