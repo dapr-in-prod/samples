@@ -10,15 +10,23 @@ resource "azurerm_kubernetes_cluster" "aks" {
   location            = azurerm_resource_group.rg.location
   dns_prefix          = "${var.resource_prefix}-${random_pet.akssuffix.id}"
 
+  identity {
+    type = "SystemAssigned"
+  }
+
   default_node_pool {
     name            = "default"
     node_count      = 3
     vm_size         = "Standard_B2s"
     os_disk_size_gb = 30
+    vnet_subnet_id  = azurerm_subnet.backend.id
   }
 
-  identity {
-    type = "SystemAssigned"
+  network_profile {
+    network_plugin    = "azure"
+    service_cidr      = var.cluster_service_cidr
+    network_policy    = "calico"
+    load_balancer_sku = "standard"
   }
 
   role_based_access_control_enabled = true

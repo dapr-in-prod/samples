@@ -56,10 +56,10 @@ resource "helm_release" "ingress-azure" {
     value = "true"
   }
 
-#   set {
-#     name  = "kubernetes.watchNamespace"
-#     value = ""
-#   }
+  set {
+    name  = "kubernetes.watchNamespace"
+    value = var.app_namespace
+  }
 
   depends_on = [
     helm_release.aad-pod-identity

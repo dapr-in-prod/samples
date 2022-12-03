@@ -2,7 +2,7 @@ resource "azurerm_virtual_network" "vnet" {
   name                = "${var.resource_prefix}-net"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  address_space       = ["10.254.0.0/16"]
+  address_space       = [var.vnet_ingress_address_space]
 
   tags = local.tags
 }
@@ -11,14 +11,14 @@ resource "azurerm_subnet" "frontend" {
   name                 = "frontend"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = ["10.254.0.0/24"]
+  address_prefixes     = [var.vnet_ingress_frontend_subnet]
 }
 
 resource "azurerm_subnet" "backend" {
   name                 = "backend"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = ["10.254.2.0/24"]
+  address_prefixes     = [var.vnet_ingress_backend_subnet]
 }
 
 resource "azurerm_public_ip" "ingress" {
