@@ -96,3 +96,17 @@ secretstore_admins       = ["00000000-0000-0000-0000-000000000000"]
 
 1. change into the folder of the desired sample e.g. `cd ./chapter-2/apps/simple-js`
 1. build and deploy to Container Apps with `../scripts/aca-deploy.sh build` (and `../scripts/aca-deploy.sh` when you want to deploy the container from container registry w/o rebuilding)
+
+----
+
+## Helpers
+
+### remove local Terraform state
+
+from repository main folder
+
+```shell
+find . -name .terraform* -type d | xargs -i rm -rf {}
+find . -name .terraform* -type f
+```
+
