@@ -2,24 +2,24 @@
 
 # https://learn.microsoft.com/en-us/azure/aks/dapr#register-the-kubernetesconfiguration-service-provider
 
-TARGET=../aks-terraform
-TFVARS=$TARGET/terraform.tfvars
+TARGET_INFRA_FOLDER=../aks-terraform
+TF_VARS=$TARGET_INFRA_FOLDER/terraform.tfvars
 
-source <(sed 's/\s//g' $TFVARS)
+source <(sed -r 's/^([a-z_]+)\s+=\s+(.*)$/\U\1=\L\2/' $TF_VARS)
 
-if [ $(az group exists --name $resource_group) = true ];
+if [ $(az group exists --name $RESOURCE_GROUP) = true ];
 then
-    AKSNAME=`az aks list -g $resource_group --query [0].name -o tsv`
+    CLUSTER_NAME=`az aks list -g $RESOURCE_GROUP --query [0].name -o tsv`
 else
-    echo "$resource_group not found"
+    echo "$RESOURCE_GROUP not found"
 fi
 
-echo "Cluster: $AKSNAME"
+echo "Cluster: $CLUSTER_NAME"
 
-if [ ! -z "$AKSNAME" ]; then
+if [ ! -z "$CLUSTER_NAME" ]; then
     az k8s-extension create --cluster-type managedClusters \
-        --cluster-name $AKSNAME \
-        --resource-group $resource_group \
+        --cluster-name $CLUSTER_NAME \
+        --resource-group $RESOURCE_GROUP \
         --name dapr \
         --extension-type Microsoft.Dapr
 fi

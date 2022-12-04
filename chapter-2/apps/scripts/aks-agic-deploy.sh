@@ -1,57 +1,54 @@
 #!/bin/bash
 
-# https://github.com/azuredevcollege/aks/blob/master/dapr-secrets-aad-pod-identity/README.md
-
 set -e
 
-TARGET=../../infra/aks-terraform
-TFVARS=$TARGET/terraform.tfvars
-APPNAME=${PWD##*/}
+TARGET_INFRA_FOLDER=../../infra/aks-terraform
+TF_VARS=$TARGET_INFRA_FOLDER/terraform.tfvars
+APP_NAME=${PWD##*/}
 REVISION=`date +"%s"`
 NAMESPACE=dip
-AAD_IDENTITY_NAME=$APPNAME
+AAD_IDENTITY_NAME=$APP_NAME
 SUBSCRIPTION_ID=`az account show --query id -o tsv`
 
-source <(sed 's/\s//g' $TFVARS)
+source <(sed -r 's/^([a-z_]+)\s+=\s+(.*)$/\U\1=\L\2/' $TF_VARS)
 
-if [ -z $ app_namespace ];
+if [ -z $ APP_NAMESPACE ];
 then
-  NAMESPACE=$app_namespace
+  NAMESPACE=$APP_NAMESPACE
 fi
 
-echo -e "App Id + Image: $APPNAME\nResource Group: $resource_group"
+echo -e "App Id + Image: $APP_NAME\nResource Group: $RESOURCE_GROUP"
 
-if [ $(az group exists --name $resource_group) = true ];
+if [ $(az group exists --name $RESOURCE_GROUP) = true ];
 then
-  ACRNAME=`az acr list -g $resource_group --query [0].name -o tsv`
-  ACRLOGINSERVER=`az acr list -g $resource_group --query [0].loginServer -o tsv`
-  AKSNAME=`az aks list -g $resource_group --query [0].name -o tsv`
-  AKS_OIDC_ISSUER="$(az aks show -n $AKSNAME -g $resource_group --query "oidcIssuerProfile.issuerUrl" -o tsv)"
-  KVNAME=`az keyvault list -g $resource_group --query [0].name -o tsv`
-  KVFQDN=`az keyvault show -g $resource_group -n $KVNAME --query properties.vaultUri -o tsv | sed -e 's|^[^/]*//||' -e 's|/.*$||'`
-  UAID=`az identity list -g $resource_group --query "[?contains(name,'kvconsumer')].name" -o tsv`
-  KVCONSUMERNAME=`az identity list -g $resource_group --query "[?contains(name,'kvconsumer')].name" -o tsv`
-  KVCONSUMERID=`az identity list -g $resource_group --query "[?contains(name,'kvconsumer')].id" -o tsv`
-  KVCONSUMERCLIENTID=`az identity list -g $resource_group --query "[?contains(name,'kvconsumer')].clientId" -o tsv`
+  ACR_NAME=`az acr list -g $RESOURCE_GROUP --query [0].name -o tsv`
+  ACR_LOGINSERVER=`az acr list -g $RESOURCE_GROUP --query [0].loginServer -o tsv`
+  CLUSTER_NAME=`az aks list -g $RESOURCE_GROUP --query [0].name -o tsv`
+  AKS_OIDC_ISSUER="$(az aks show -n $CLUSTER_NAME -g $RESOURCE_GROUP --query "oidcIssuerProfile.issuerUrl" -o tsv)"
+  KV_NAME=`az keyvault list -g $RESOURCE_GROUP --query [0].name -o tsv`
+  KV_FQDN=`az keyvault show -g $RESOURCE_GROUP -n $KV_NAME --query properties.vaultUri -o tsv | sed -e 's|^[^/]*//||' -e 's|/.*$||'`
+  KV_CONSUMER_NAME=`az identity list -g $RESOURCE_GROUP --query "[?contains(name,'kvconsumer')].name" -o tsv`
+  KV_CONSUMER_ID=`az identity list -g $RESOURCE_GROUP --query "[?contains(name,'kvconsumer')].id" -o tsv`
+  KV_CONSUMER_CLIENT_ID=`az identity list -g $RESOURCE_GROUP --query "[?contains(name,'kvconsumer')].clientId" -o tsv`
 else
-  echo "$resource_group not found"
+  echo "$RESOURCE_GROUP not found"
 fi
 
-echo "Registry: $ACRNAME | Cluster: $AKSNAME | Key Vault: $KVNAME"
+echo "Registry: $ACR_NAME | Cluster: $CLUSTER_NAME | Key Vault: $KV_NAME"
 
-if [ -z "$ACRNAME" ] || [ -z "$AKSNAME" ] || [ -z "$KVNAME" ];
+if [ -z "$ACR_NAME" ] || [ -z "$CLUSTER_NAME" ] || [ -z "$KV_NAME" ];
 then
     exit 1
 fi
 
 if [ "$1" == "build" ];
 then
-  az acr build -r $ACRNAME -g $resource_group \
-      -t $APPNAME:$REVISION -t $APPNAME:latest .
+  az acr build -r $ACR_NAME -g $RESOURCE_GROUP \
+      -t $APP_NAME:$REVISION -t $APP_NAME:latest .
 
-  IMAGE=$ACRLOGINSERVER/$APPNAME:$REVISION
+  IMAGE=$ACR_LOGINSERVER/$APP_NAME:$REVISION
 else
-  IMAGE=$ACRLOGINSERVER/$APPNAME:latest
+  IMAGE=$ACR_LOGINSERVER/$APP_NAME:latest
 fi
 
 cat <<EOF | kubectl apply -f -
@@ -65,32 +62,32 @@ cat <<EOF | kubectl apply -f -
 apiVersion: "aadpodidentity.k8s.io/v1"
 kind: AzureIdentityBinding
 metadata:
-  name: ${KVCONSUMERNAME}-binding
+  name: ${KV_CONSUMER_NAME}-binding
   namespace: ${NAMESPACE}
 spec:
-  azureIdentity: ${KVCONSUMERNAME}
-  selector: ${KVCONSUMERNAME}
+  azureIdentity: ${KV_CONSUMER_NAME}
+  selector: ${KV_CONSUMER_NAME}
 ---
 apiVersion: "aadpodidentity.k8s.io/v1"
 kind: AzureIdentity
 metadata:
-  name: ${KVCONSUMERNAME}
+  name: ${KV_CONSUMER_NAME}
   namespace: ${NAMESPACE}
 spec:
   type: 0
-  resourceID: ${KVCONSUMERID}
-  clientID: ${KVCONSUMERCLIENTID}
+  resourceID: ${KV_CONSUMER_ID}
+  clientID: ${KV_CONSUMER_CLIENT_ID}
 ---
 kind: Service
 apiVersion: v1
 metadata:
-  name: ${APPNAME}
+  name: ${APP_NAME}
   namespace: ${NAMESPACE}
   labels:
-    app: ${APPNAME}
+    app: ${APP_NAME}
 spec:
   selector:
-    app: ${APPNAME}
+    app: ${APP_NAME}
   ports:
   - port: 5001
     targetPort: 5001
@@ -98,7 +95,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ${APPNAME}
+  name: ${APP_NAME}
   namespace: ${NAMESPACE}
   annotations:
     kubernetes.io/ingress.class: azure/application-gateway
@@ -111,7 +108,7 @@ spec:
       - path: /*
         backend:
           service:
-            name: ${APPNAME}
+            name: ${APP_NAME}
             port:
               number: 5001
         pathType: Exact
@@ -119,27 +116,27 @@ spec:
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: ${APPNAME}
+  name: ${APP_NAME}
   namespace: ${NAMESPACE}
   labels:
-    app: ${APPNAME}
+    app: ${APP_NAME}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ${APPNAME}
+      app: ${APP_NAME}
   template:
     metadata:
       labels:
-        app: ${APPNAME}
-        aadpodidbinding: ${KVCONSUMERNAME}
+        app: ${APP_NAME}
+        aadpodidbinding: ${KV_CONSUMER_NAME}
       annotations:
         dapr.io/enabled: "true"
         dapr.io/app-id: "simple-js"
         dapr.io/app-port: "5001"
     spec:
       containers:
-      - name: ${APPNAME}
+      - name: ${APP_NAME}
         image: ${IMAGE}
         ports:
         - containerPort: 5001
@@ -154,5 +151,5 @@ spec:
   version: v1
   metadata:
   - name: vaultName
-    value: ${KVFQDN}
+    value: ${KV_FQDN}
 EOF

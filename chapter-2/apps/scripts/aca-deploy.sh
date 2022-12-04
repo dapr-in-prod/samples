@@ -1,45 +1,45 @@
 #!/bin/bash
 
-TARGET=../../infra/aca-terraform
-TFVARS=$TARGET/terraform.tfvars
-APPNAME=${PWD##*/}
+TARGET_INFRA_FOLDER=../../infra/aca-terraform
+TF_VARS=$TARGET_INFRA_FOLDER/terraform.tfvars
+APP_NAME=${PWD##*/}
 REVISION=`date +"%s"`
 
-source <(sed 's/\s//g' $TFVARS)
+source <(sed -r 's/^([a-z_]+)\s+=\s+(.*)$/\U\1=\L\2/' $TF_VARS)
 
-echo -e "App Id + Image: $APPNAME\nResource Group: $resource_group"
+echo -e "App Id + Image: $APP_NAME\nResource Group: $RESOURCE_GROUP"
 
-if [ $(az group exists --name $resource_group) = true ];
+if [ $(az group exists --name $RESOURCE_GROUP) = true ];
 then
-    ACRNAME=`az acr list -g $resource_group --query [0].name -o tsv`
-    ACRLOGINSERVER=`az acr list -g $resource_group --query [0].loginServer -o tsv`
-    ACANAME=`az containerapp env list -g $resource_group --query '[0].name' -o tsv`
-    ACRPULLID=`az identity list -g $resource_group --query "[?contains(name,'acrpull')].id" -o tsv`
-    KVCONSUMERID=`az identity list -g $resource_group --query "[?contains(name,'kvconsumer')].id" -o tsv`
+    ACR_NAME=`az acr list -g $RESOURCE_GROUP --query [0].name -o tsv`
+    ACR_LOGINSERVER=`az acr list -g $RESOURCE_GROUP --query [0].loginServer -o tsv`
+    ACA_NAME=`az containerapp env list -g $RESOURCE_GROUP --query '[0].name' -o tsv`
+    ACR_PULL_ID=`az identity list -g $RESOURCE_GROUP --query "[?contains(name,'acrpull')].id" -o tsv`
+    KV_CONSUMER_ID=`az identity list -g $RESOURCE_GROUP --query "[?contains(name,'kvconsumer')].id" -o tsv`
 else
-    echo "$resource_group not found"
+    echo "$RESOURCE_GROUP not found"
 fi
 
-echo "Registry: $ACRNAME | Container Apps Environment: $ACANAME"
+echo "Registry: $ACR_NAME | Container Apps Environment: $ACA_NAME"
 
-if [ ! -z "$ACRNAME" ] && [ ! -z "$ACANAME" ];
+if [ ! -z "$ACR_NAME" ] && [ ! -z "$ACA_NAME" ];
 then
-    az acr build -r $ACRNAME -g $resource_group \
-        -t $APPNAME:$REVISION -t $APPNAME:latest .
+    az acr build -r $ACR_NAME -g $RESOURCE_GROUP \
+        -t $APP_NAME:$REVISION -t $APP_NAME:latest .
 
-    if [ -z $(az containerapp list --environment $ACANAME -g $resource_group --query '[?name == "$APPNAME"].id' -o tsv)];
+    if [ -z $(az containerapp list --environment $ACA_NAME -g $RESOURCE_GROUP --query '[?name == "$APP_NAME"].id' -o tsv)];
     then
-        az containerapp create -n $APPNAME -g $resource_group \
-            --environment $ACANAME \
+        az containerapp create -n $APP_NAME -g $RESOURCE_GROUP \
+            --environment $ACA_NAME \
             --min-replicas 1 --max-replicas 1 \
-            --registry-server $ACRLOGINSERVER --registry-identity $ACRPULLID \
-            --user-assigned $KVCONSUMERID \
+            --registry-server $ACR_LOGINSERVER --registry-identity $ACR_PULL_ID \
+            --user-assigned $KV_CONSUMER_ID \
             --ingress external --target-port 5001 \
-            --enable-dapr --dapr-app-id $APPNAME --dapr-app-port 5001 \
-            --image $ACRLOGINSERVER/$APPNAME:$REVISION
+            --enable-dapr --dapr-app-id $APP_NAME --dapr-app-port 5001 \
+            --image $ACR_LOGINSERVER/$APP_NAME:$REVISION
     else
-        az containerapp update -n $APPNAME -g $resource_group \
-            --image $ACRLOGINSERVER/$APPNAME:$REVISION
+        az containerapp update -n $APP_NAME -g $RESOURCE_GROUP \
+            --image $ACR_LOGINSERVER/$APP_NAME:$REVISION
     fi
 
 fi
