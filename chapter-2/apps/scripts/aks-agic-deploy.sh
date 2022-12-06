@@ -3,14 +3,13 @@
 set -e
 
 TARGET_INFRA_FOLDER=../../infra/aks-terraform
-TF_VARS=$TARGET_INFRA_FOLDER/terraform.tfvars
 APP_NAME=${PWD##*/}
 REVISION=`date +"%s"`
 NAMESPACE=dip
 AAD_IDENTITY_NAME=$APP_NAME
 SUBSCRIPTION_ID=`az account show --query id -o tsv`
 
-source <(sed -r 's/^([a-z_]+)\s+=\s+(.*)$/\U\1=\L\2/' $TF_VARS)
+source <(terraform -chdir=$TARGET_INFRA_FOLDER output | sed -r 's/^([a-z_]+)\s+=\s+(.*)$/\U\1=\L\2/')
 
 if [ -z $ APP_NAMESPACE ];
 then

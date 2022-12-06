@@ -1,9 +1,6 @@
 #!/bin/bash
 
-TARGET_INFRA_FOLDER=../aks-terraform
-TF_VARS=$TARGET_INFRA_FOLDER/terraform.tfvars
-
-source <(sed -r 's/^([a-z_]+)\s+=\s+(.*)$/\U\1=\L\2/' $TF_VARS)
+source <(terraform output | sed -r 's/^([a-z_]+)\s+=\s+(.*)$/\U\1=\L\2/')
 
 if [ $(az group exists --name $RESOURCE_GROUP) = true ];
 then
@@ -12,9 +9,9 @@ else
     echo "$RESOURCE_GROUP not found"
 fi
 
-echo "Cluster: $CLUSTER_NAME"
+echo "Cluster: $CLUSTER_NAME Resource Group: $RESOURCE_GROUP"
 
 if [ ! -z "$CLUSTER_NAME" ]; then
-    az aks get-credentials -g $RESOURCE_GROUP -n $CLUSTER_NAME --admin
+    az aks get-credentials -g $RESOURCE_GROUP -n $CLUSTER_NAME --admin --overwrite
 fi
 

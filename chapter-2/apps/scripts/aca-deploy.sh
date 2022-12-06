@@ -1,11 +1,10 @@
 #!/bin/bash
 
 TARGET_INFRA_FOLDER=../../infra/aca-terraform
-TF_VARS=$TARGET_INFRA_FOLDER/terraform.tfvars
 APP_NAME=${PWD##*/}
 REVISION=`date +"%s"`
 
-source <(sed -r 's/^([a-z_]+)\s+=\s+(.*)$/\U\1=\L\2/' $TF_VARS)
+source <(terraform -chdir=$TARGET_INFRA_FOLDER output | sed -r 's/^([a-z_]+)\s+=\s+(.*)$/\U\1=\L\2/')
 
 echo -e "App Id + Image: $APP_NAME\nResource Group: $RESOURCE_GROUP"
 

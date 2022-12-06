@@ -40,9 +40,15 @@ variable "secretstore_admins" {
   description = "List of Key Vault administrator object / principal Ids"
 }
 
+variable "dapr_deploy" {
+  type = bool
+  default = false
+  description = "Indicate whether to deploy Dapr directly with cluster"
+}
+
 variable "dapr_version" {
   type        = string
-  default     = "1.9.4"
+  default     = "1.9.5"
   description = "Dapr version to install with Helm charts"
 }
 

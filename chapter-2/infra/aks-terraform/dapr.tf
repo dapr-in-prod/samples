@@ -1,4 +1,5 @@
 resource "kubernetes_namespace" "dapr" {
+  count = var.dapr_deploy ? 1 : 0
   metadata {
     name = var.dapr_namespace
   }
@@ -9,6 +10,7 @@ resource "kubernetes_namespace" "dapr" {
 }
 
 resource "helm_release" "dapr" {
+  count = var.dapr_deploy ? 1 : 0
   name = "dapr"
   # determine chart url from https://github.com/dapr/helm-charts
   chart     = "https://github.com/dapr/helm-charts/raw/master/dapr-${var.dapr_version}.tgz"
