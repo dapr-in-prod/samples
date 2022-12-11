@@ -16,5 +16,8 @@ if [ ! -z "$CLUSTER_NAME" ]; then
         --cluster-name $CLUSTER_NAME \
         --resource-group $RESOURCE_GROUP \
         --name dapr \
-        --extension-type Microsoft.Dapr
+        --extension-type Microsoft.Dapr \
+        --auto-upgrade-minor-version true \
+        --configuration-settings "global.ha.enabled=true" \
+        --configuration-settings "dapr_dashboard.enabled=false"
 fi
