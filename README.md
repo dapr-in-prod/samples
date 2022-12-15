@@ -55,6 +55,7 @@ All infrastructure in this repository is defined with [Terraform templates](http
 
 - Terraform CLI version >= `1.3.2`
 - Helm CLI version >= `3.9.4`
+- jq version >= `1.6`
 
 ### Sample Apps
 

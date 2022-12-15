@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source <(terraform output | sed -r 's/^([a-z_]+)\s+=\s+(.*)$/\U\1=\L\2/')
+source <(terraform output --json | jq -r 'keys[] as $k | "\($k|ascii_upcase)=\(.[$k] | .value)"')
 
 if [ $(az group exists --name $RESOURCE_GROUP) = true ];
 then

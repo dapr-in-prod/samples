@@ -4,7 +4,7 @@ TARGET_INFRA_FOLDER=../../infra/aca-terraform
 APP_NAME=${PWD##*/}
 REVISION=`date +"%s"`
 
-source <(terraform -chdir=$TARGET_INFRA_FOLDER output | sed -r 's/^([a-z_]+)\s+=\s+(.*)$/\U\1=\L\2/')
+source <(terraform -chdir=$TARGET_INFRA_FOLDER output --json | jq -r 'keys[] as $k | "\($k|ascii_upcase)=\(.[$k] | .value)"')
 
 echo -e "App Id + Image: $APP_NAME\nResource Group: $RESOURCE_GROUP"
 
