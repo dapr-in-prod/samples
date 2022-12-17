@@ -19,5 +19,6 @@ if [ ! -z "$CLUSTER_NAME" ]; then
         --extension-type Microsoft.Dapr \
         --auto-upgrade-minor-version true \
         --configuration-settings "global.ha.enabled=true" \
+        --configuration-settings "dapr_placement.cluster.forceInMemoryLog=true" \
         --configuration-settings "dapr_dashboard.enabled=false"
 fi
