@@ -69,7 +69,7 @@ This section lists all (local) requirements for the particular sample applicatio
 
 ## Example deployments
 
-This section describes how to deploy infrastructure and sample applications.
+This section describes how to generally deploy infrastructure and sample applications. See here for [all sample deployment combinations](./chapter-2/README.md)
 
 ### deployment on Azure with Terraform
 
