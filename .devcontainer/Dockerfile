@@ -2,6 +2,7 @@ ARG VARIANT="3.16"
 FROM mcr.microsoft.com/vscode/devcontainers/base:0-alpine-${VARIANT}
 
 RUN apk upgrade --update-cache --available && \
+    apk add nodejs npm && \
     apk add py3-pip gcc musl-dev python3-dev libffi-dev openssl openssl-dev cargo make && \
     rm -rf /var/cache/apk/*
 

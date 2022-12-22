@@ -18,18 +18,13 @@ then
     ACR_NAME=`az acr list -g $RESOURCE_GROUP --query [0].name -o tsv`
     ACR_LOGINSERVER=`az acr list -g $RESOURCE_GROUP --query [0].loginServer -o tsv`
     CLUSTER_NAME=`az aks list -g $RESOURCE_GROUP --query [0].name -o tsv`
-    KV_NAME=`az keyvault list -g $RESOURCE_GROUP --query [0].name -o tsv`
-    KV_FQDN=`az keyvault show -g $RESOURCE_GROUP -n $KV_NAME --query properties.vaultUri -o tsv | sed -e 's|^[^/]*//||' -e 's|/.*$||'`
-    KV_CONSUMER_NAME=`az identity list -g $RESOURCE_GROUP --query "[?contains(name,'kvconsumer')].name" -o tsv`
-    KV_CONSUMER_ID=`az identity list -g $RESOURCE_GROUP --query "[?contains(name,'kvconsumer')].id" -o tsv`
-    KV_CONSUMER_CLIENT_ID=`az identity list -g $RESOURCE_GROUP --query "[?contains(name,'kvconsumer')].clientId" -o tsv`
 else
     echo "$RESOURCE_GROUP not found"
 fi
 
-echo "Registry: $ACR_NAME | Cluster: $CLUSTER_NAME | Key Vault: $KV_NAME"
+echo "Registry: $ACR_NAME | Cluster: $CLUSTER_NAME"
 
-if [ -z "$ACR_NAME" ] || [ -z "$CLUSTER_NAME" ] || [ -z "$KV_NAME" ];
+if [ -z "$ACR_NAME" ] || [ -z "$CLUSTER_NAME" ];
 then
     exit 1
 fi
@@ -52,35 +47,16 @@ metadata:
 EOF
 
 cat <<EOF | kubectl apply -f -
-apiVersion: "aadpodidentity.k8s.io/v1"
-kind: AzureIdentityBinding
-metadata:
-  name: ${KV_CONSUMER_NAME}-binding
-  namespace: ${NAMESPACE}
-spec:
-  azureIdentity: ${KV_CONSUMER_NAME}
-  selector: ${KV_CONSUMER_NAME}
----
-apiVersion: "aadpodidentity.k8s.io/v1"
-kind: AzureIdentity
-metadata:
-  name: ${KV_CONSUMER_NAME}
-  namespace: ${NAMESPACE}
-spec:
-  type: 0
-  resourceID: ${KV_CONSUMER_ID}
-  clientID: ${KV_CONSUMER_CLIENT_ID}
----
 kind: Service
 apiVersion: v1
 metadata:
-  name: simple-js
+  name: ${APP_NAME}
   namespace: ${NAMESPACE}
   labels:
-    app: simple-js
+    app: ${APP_NAME}
 spec:
   selector:
-    app: simple-js
+    app: ${APP_NAME}
   ports:
     - port: 5001
   type: LoadBalancer
@@ -88,40 +64,62 @@ spec:
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: simple-js
+  name: ${APP_NAME}
   namespace: ${NAMESPACE}
   labels:
-    app: simple-js
+    app: ${APP_NAME}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: simple-js
+      app: ${APP_NAME}
   template:
     metadata:
       labels:
-        app: simple-js
-        aadpodidbinding: ${KV_CONSUMER_NAME}
+        app: ${APP_NAME}
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/app-id: "simple-js"
+        dapr.io/app-id: "${APP_NAME}"
         dapr.io/app-port: "5001"
+        dapr.io/sidecar-cpu-limit: "200m"
+        dapr.io/sidecar-cpu-request: "100m"
+        dapr.io/sidecar-memory-limit: "500Mi"
+        dapr.io/sidecar-memory-request: "250Mi"
     spec:
       containers:
-      - name: simple-js
+      - name: ${APP_NAME}
         image: ${IMAGE}
         ports:
         - containerPort: 5001
+        resources:
+          limits:
+            cpu: 500m
+          requests:
+            cpu: 200m
 ---
-apiVersion: dapr.io/v1alpha1
-kind: Component
+kind: HorizontalPodAutoscaler
+apiVersion: autoscaling/v2
 metadata:
-  name: secretstore
+  name: ${APP_NAME}
   namespace: ${NAMESPACE}
 spec:
-  type: secretstores.azure.keyvault
-  version: v1
-  metadata:
-  - name: vaultName
-    value: ${KV_FQDN}
+  minReplicas: 1
+  maxReplicas: 10
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ${APP_NAME}
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 20
 EOF
+
+# output the URL
+IP=`kubectl get svc $APP_NAME -o jsonpath="{.status.loadBalancer.ingress[0].ip}" --namespace $NAMESPACE`
+PORT=`kubectl get svc $APP_NAME -o jsonpath="{.spec.ports[0].targetPort}" --namespace $NAMESPACE`
+echo "Single test URL: wget -q -O- http://$IP:$PORT/calculate"
+echo -e "Scaling test URL: kubectl run --namespace $NAMESPACE -i --tty load-generator --rm --image=busybox --restart=Never -- /bin/sh -c \x22while sleep 0.01; do wget -q -O- http://$IP:$PORT/calculate; done\x22"

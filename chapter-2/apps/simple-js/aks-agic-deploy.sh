@@ -131,7 +131,7 @@ spec:
         aadpodidbinding: ${KV_CONSUMER_NAME}
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/app-id: "simple-js"
+        dapr.io/app-id: ${APP_NAME}
         dapr.io/app-port: "5001"
     spec:
       containers:
