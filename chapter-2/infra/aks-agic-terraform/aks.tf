@@ -31,8 +31,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   role_based_access_control_enabled = true
   azure_active_directory_role_based_access_control {
-    managed                = true
-    admin_group_object_ids = var.cluster_admins
+    managed            = true
+    tenant_id          = data.azurerm_client_config.current.tenant_id
+    azure_rbac_enabled = true
   }
 
   oms_agent {
@@ -55,7 +56,16 @@ resource "azurerm_log_analytics_solution" "aks_insights" {
   }
 }
 
-# assign roles required for Container Registry pull
+# assign role for AKS cluster admins
+
+resource "azurerm_role_assignment" "aks_admin_role_assignment" {
+  for_each             = toset(var.cluster_admins)
+  principal_id         = each.value
+  scope                = azurerm_kubernetes_cluster.aks.id
+  role_definition_name = "Azure Kubernetes Service RBAC Cluster Admin"
+}
+
+# assign role required for Container Registry pull
 
 resource "azurerm_role_assignment" "acr_role_assignment" {
   principal_id         = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
