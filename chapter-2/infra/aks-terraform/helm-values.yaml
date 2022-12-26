@@ -1,0 +1,10 @@
+global:
+  ha:
+    enabled: true
+  prometheus:
+    enabled: false
+  mtls:
+    enabled: true
+dapr_sidecar_injector:
+  replicaCount: 2
+  logLevel: error
