@@ -57,6 +57,25 @@ All infrastructure in this repository is defined with [Terraform templates](http
 - Helm CLI version >= `3.9.4`
 - jq version >= `1.6`
 
+### Kind - Kubernetes in Docker
+
+To explore samples in this repository, also a [**Kind local cluster**](https://registry.terraform.io/providers/kyma-incubator/kind/latest/docs/resources/cluster) configuration can be used.
+
+If not yet existing, create empty **kubectl** configuration file:
+
+```shell
+mkdir ~/.kube
+touch ~/.kube/config
+```
+
+then deploy **Kind**:
+
+```shell
+cd ./chapter-2/infra/local-terraform
+terraform init
+terraform apply
+````
+
 ### Minikube
 
 To explore samples in this repository, also a **Minikube** configuration can be used. From Dev Container included in this repo or a self-installation of **Minikube** and **Dapr** execute: 
