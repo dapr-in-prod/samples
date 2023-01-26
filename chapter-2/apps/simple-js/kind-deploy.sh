@@ -6,7 +6,7 @@ APP_NAME=${PWD##*/}
 REVISION=`date +"%s"`
 NAMESPACE=dip
 SECRET=`echo -n "the-answer-is-42" | base64`
-REGISTRY=localhost:5501
+REGISTRY=localhost:5000
 
 if [ "$1" == "build" ]; then
   docker build -t $REGISTRY/$APP_NAME:latest .
@@ -19,19 +19,6 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: ${NAMESPACE}
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: kube-system-cluster-admin
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
-subjects:
-- kind: ServiceAccount
-  name: default
-  namespace: ${NAMESPACE}
 EOF
 
 cat <<EOF | kubectl apply -f -
@@ -47,6 +34,31 @@ spec:
     app: ${APP_NAME}
   ports:
     - port: 5001
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ${APP_NAME}
+  namespace: ${NAMESPACE}
+  labels:
+    app: ${APP_NAME}
+  annotations:
+    ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+           name: ${APP_NAME}
+           port:
+             number: 5001
 ---
 kind: Deployment
 apiVersion: apps/v1
@@ -75,6 +87,14 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 5001
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5001
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5001
         resources:
           limits:
             cpu: 500m

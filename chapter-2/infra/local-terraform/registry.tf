@@ -8,7 +8,7 @@ resource "docker_container" "kind-registry" {
   restart = "always"
   ports {
     internal = 5000
-    external = 5501
+    external = 5000
     ip       = "127.0.0.1"
   }
   networks_advanced {

@@ -18,6 +18,7 @@ resource "kind_cluster" "my_cluster" {
 
     node {
       role = "control-plane"
+
       kubeadm_config_patches = [
         <<-TOML
           kind: InitConfiguration
@@ -26,6 +27,13 @@ resource "kind_cluster" "my_cluster" {
               node-labels: "ingress-ready=true"
         TOML
       ]
+      
+      extra_port_mappings {
+        container_port = 5001
+        host_port      = 5001
+        protocol       = "TCP"
+        listen_address = "127.0.0.1"
+      }
     }
 
     node {

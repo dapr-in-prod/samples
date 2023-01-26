@@ -18,5 +18,5 @@ variable "dapr_namespace" {
 
 variable "kube_config" {
   type    = string
-  default = "~/.kube/config-my-dapr-cluster"
+  default = "~/.kube/config"
 }
