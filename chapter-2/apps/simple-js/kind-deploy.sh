@@ -28,6 +28,19 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: ${NAMESPACE}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kube-system-cluster-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: ${NAMESPACE}
 EOF
 
 cat <<EOF | kubectl apply -f -
@@ -129,3 +142,10 @@ spec:
   version: v1
   metadata: []
 EOF
+
+# check
+kubectl wait --namespace=$NAMESPACE \
+  --for=condition=ready pod \
+  --selector=app=$APP
+curl http://localhost/health
+curl http://localhost/show-secret

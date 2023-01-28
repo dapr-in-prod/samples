@@ -76,19 +76,6 @@ terraform init
 terraform apply
 ````
 
-### Minikube
-
-To explore samples in this repository, also a **Minikube** configuration can be used. From Dev Container included in this repo or a self-installation of **Minikube** and **Dapr** execute: 
-
-```shell
-minikube config set vm-driver docker
-minikube start --cpus=4 --memory=4096
-minikube addons enable metrics-server
-minikube addons enable dashboard
-minikube addons enable ingress
-dapr init -k
-```
-
 ### Sample Apps
 
 This section lists all (local) requirements for the particular sample applications:

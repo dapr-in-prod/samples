@@ -39,6 +39,14 @@ resource "kind_cluster" "my_cluster" {
     node {
       role = "worker"
     }
+
+    node {
+      role = "worker"
+    }
+
+    node {
+      role = "worker"
+    }
   }
 
   depends_on = [
@@ -77,7 +85,7 @@ resource "helm_release" "dapr" {
 
   set {
     name  = "global.ha.enabled"
-    value = "false"
+    value = "true"
   }
 
   set {
