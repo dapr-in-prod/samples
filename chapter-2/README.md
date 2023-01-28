@@ -12,3 +12,11 @@ Folder **chapter-2** supports these combinations of samples to be deployed:
 | Minikube - simple secret store access | 1. `cd {repository-root}/chapter-2/infra/scripts`<br/>2. `./minikube-start.sh init`<br/>3. `cd {repository-root}/chapter-2/apps/simple-js`<br/>4. `./minikube-deploy.sh build` |
 
 > for all AKS cases, from the respective infrastructure sample folder, `source ../scripts/set-aliases.sh` can be used to set up some aliases for the `kubectl` commands
+
+## helpers
+
+### set `kubectl` aliases
+
+```shell
+source $(git rev-parse --show-toplevel)/chapter-2/infra/scripts/set-aliases.sh
+```

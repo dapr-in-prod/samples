@@ -29,19 +29,11 @@ resource "kind_cluster" "my_cluster" {
       ]
       
       extra_port_mappings {
-        container_port = 5001
-        host_port      = 5001
+        container_port = 80
+        host_port      = 80
         protocol       = "TCP"
         listen_address = "127.0.0.1"
       }
-    }
-
-    node {
-      role = "worker"
-    }
-
-    node {
-      role = "worker"
     }
 
     node {
@@ -85,7 +77,7 @@ resource "helm_release" "dapr" {
 
   set {
     name  = "global.ha.enabled"
-    value = "true"
+    value = "false"
   }
 
   set {

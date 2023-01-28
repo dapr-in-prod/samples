@@ -14,6 +14,15 @@ if [ "$1" == "build" ]; then
 fi
 IMAGE=$REGISTRY/$APP_NAME:latest
 
+# spin up ingress
+# source: https://kind.sigs.k8s.io/docs/user/ingress/
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+kubectl wait --namespace ingress-nginx \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/component=controller \
+  --timeout=90s
+
+# deploy application
 cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: Namespace
@@ -34,7 +43,7 @@ spec:
     app: ${APP_NAME}
   ports:
     - port: 5001
-  type: ClusterIP
+  type: NodePort
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -53,7 +62,7 @@ spec:
   - http:
       paths:
       - path: /
-        pathType: ImplementationSpecific
+        pathType: Prefix
         backend:
           service:
            name: ${APP_NAME}
