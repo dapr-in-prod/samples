@@ -6,17 +6,15 @@ APP_NAME=${PWD##*/}
 REVISION=`date +"%s"`
 NAMESPACE=dip
 SECRET=`echo -n "the-answer-is-42" | base64`
-
-# point docker to minikube docker daemon
-eval $(minikube -p minikube docker-env)
+REGISTRY=localhost:5000
 
 if [ "$1" == "build" ]; then
-  docker build -t $APP_NAME:$REVISION -t $APP_NAME:latest .
-  IMAGE=$APP_NAME:$REVISION
-else
-  IMAGE=$APP_NAME:latest
+  docker build -t $REGISTRY/$APP_NAME:latest .
+  docker push $REGISTRY/$APP_NAME:latest
 fi
+IMAGE=$REGISTRY/$APP_NAME:latest
 
+# deploy application
 cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: Namespace
@@ -52,6 +50,30 @@ spec:
     - port: 5001
   type: NodePort
 ---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ${APP_NAME}
+  namespace: ${NAMESPACE}
+  labels:
+    app: ${APP_NAME}
+  annotations:
+    ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+           name: ${APP_NAME}
+           port:
+             number: 5001
+---
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -75,10 +97,18 @@ spec:
     spec:
       containers:
       - name: ${APP_NAME}
-        image: ${IMAGE}
-        imagePullPolicy: Never
+        image: localhost:5000/${APP_NAME}
+        imagePullPolicy: Always
         ports:
         - containerPort: 5001
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5001
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5001
         resources:
           limits:
             cpu: 500m
@@ -105,7 +135,8 @@ spec:
   metadata: []
 EOF
 
-# output the URL
-URL=`minikube service simple-js -n dip --url false`
-echo "Health check URL: wget -q -O- $URL/health"
-echo "Secret demo  URL: wget -q -O- $URL/show-secret"
+# check
+sleep 10
+kubectl wait --namespace=$NAMESPACE --selector=app=$APP_NAME --for=condition=ready pod
+curl http://localhost/health
+curl http://localhost/show-secret
