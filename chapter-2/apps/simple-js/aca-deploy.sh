@@ -23,8 +23,15 @@ echo "Registry: $ACR_NAME | Container Apps Environment: $ACA_NAME"
 
 if [ ! -z "$ACR_NAME" ] && [ ! -z "$ACA_NAME" ];
 then
-    az acr build -r $ACR_NAME -g $RESOURCE_GROUP \
-        -t $APP_NAME:$REVISION -t $APP_NAME:latest .
+    if [ "$1" == "build" ];
+    then
+        az acr build -r $ACR_NAME -g $RESOURCE_GROUP \
+            -t $APP_NAME:$REVISION -t $APP_NAME:latest .
+
+        IMAGE=$ACR_LOGINSERVER/$APP_NAME:$REVISION
+    else
+        IMAGE=$ACR_LOGINSERVER/$APP_NAME:latest
+    fi
 
     if [ -z $(az containerapp list --environment $ACA_NAME -g $RESOURCE_GROUP --query '[?name == "$APP_NAME"].id' -o tsv)];
     then
@@ -35,11 +42,15 @@ then
             --user-assigned $KV_CONSUMER_ID \
             --ingress external --target-port 5001 \
             --enable-dapr --dapr-app-id $APP_NAME --dapr-app-port 5001 \
-            --image $ACR_LOGINSERVER/$APP_NAME:$REVISION
+            --image $IMAGE
     else
         az containerapp update -n $APP_NAME -g $RESOURCE_GROUP \
-            --image $ACR_LOGINSERVER/$APP_NAME:$REVISION
+            --image $IMAGE
     fi
+
+    FQDN=`az containerapp show -n $APP_NAME -g $RESOURCE_GROUP --query properties.configuration.ingress.fqdn -o tsv`
+    echo "Health test: wget -q -O- http://$FQDN/health"
+    echo "Secret test: wget -q -O- http://$FQDN/show-secret"
 
 fi
 
