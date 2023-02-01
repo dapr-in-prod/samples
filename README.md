@@ -57,6 +57,10 @@ All infrastructure in this repository is defined with [Terraform templates](http
 - Helm CLI version >= `3.9.4`
 - jq version >= `1.6`
 
+optional:
+
+- [terraform-docs](https://terraform-docs.io/user-guide/installation/) >= `0.16.0` 
+
 ### Kind - Kubernetes in Docker
 
 To explore samples in this repository, also a [**Kind local cluster**](https://registry.terraform.io/providers/kyma-incubator/kind/latest/docs/resources/cluster) configuration can be used.
@@ -96,6 +100,7 @@ This section lists all (local) requirements for the particular sample applicatio
 #### simple-js
 
 - Node.js v16
+- Azure CLI Container Apps extension - install with `az extension add -n containerapp`
 
 ----
 
@@ -112,7 +117,7 @@ This section describes how to generally deploy infrastructure and sample applica
 1. change into the folder of the desired sample e.g. `cd ./chapter-2/infra/aca-terraform`
 1. be sure to clear previous state with `rm .terraform.lock.hcl` and `rm -rf .terraform`
 1. configure state store and initialize e.g. with Azure storage `../scripts/az-tfstate.sh {location}` where _location_ sets the region, where the state store is placed (otherwise eastus will be used as a default)
-1. create `terraform.tfvars` to define desired resource group and location/region
+1. create `terraform.tfvars` to define desired resource group and location/region or generate with `terraform-docs tfvars hcl . >./terraform.tfvars`
 
 ```terraform
 location                 = "westus"
