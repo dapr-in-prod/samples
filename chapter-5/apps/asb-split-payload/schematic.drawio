@@ -1,0 +1,160 @@
+<mxfile host="65bd71144e">
+    <diagram id="TrzI4v4b8V9jpXo7c-zG" name="Page-1">
+        <mxGraphModel dx="1000" dy="728" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/integration/Service_Bus.svg;" parent="1" vertex="1">
+                    <mxGeometry x="610" y="44" width="68" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="" style="edgeStyle=none;html=1;" parent="1" source="38" target="2" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/other/Worker_Container_App.svg;" parent="1" vertex="1">
+                    <mxGeometry x="220" y="70" width="68" height="66" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/other/Worker_Container_App.svg;" parent="1" vertex="1">
+                    <mxGeometry x="780" y="40" width="68" height="66" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="" style="edgeStyle=none;html=1;" parent="1" source="2" target="7" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="518" y="93.56891495601167" as="sourcePoint"/>
+                        <mxPoint x="622" y="125.89736070381241" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="14" style="edgeStyle=none;html=1;startArrow=none;startFill=0;" parent="1" source="13" target="4" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" value="" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/other/Load_Testing.svg;" parent="1" vertex="1">
+                    <mxGeometry x="50" y="70" width="59.199999999999996" height="68" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" value="" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/integration/Service_Bus.svg;" parent="1" vertex="1">
+                    <mxGeometry x="610" y="287" width="68" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" value="" style="edgeStyle=none;html=1;" parent="1" source="18" target="42" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" value="" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/other/Worker_Container_App.svg;" parent="1" vertex="1">
+                    <mxGeometry x="220" y="350" width="68" height="66" as="geometry"/>
+                </mxCell>
+                <mxCell id="19" value="" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/other/Worker_Container_App.svg;" parent="1" vertex="1">
+                    <mxGeometry x="780" y="297" width="68" height="66" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" value="" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/storage/Storage_Accounts.svg;" parent="1" vertex="1">
+                    <mxGeometry x="625" y="530" width="38" height="30.4" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" value="" style="edgeStyle=none;html=1;" parent="1" source="18" target="20" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="298" y="364.4" as="sourcePoint"/>
+                        <mxPoint x="400" y="338.6" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="22" value="" style="edgeStyle=none;html=1;" parent="1" source="16" target="19" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="298" y="383.56891495601167" as="sourcePoint"/>
+                        <mxPoint x="402" y="415.8973607038124" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="23" value="" style="edgeStyle=none;html=1;startArrow=classic;startFill=1;dashed=1;" parent="1" source="20" target="19" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="468" y="338.6" as="sourcePoint"/>
+                        <mxPoint x="570" y="364.4" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="24" style="edgeStyle=none;html=1;startArrow=none;startFill=0;" parent="1" source="25" target="18" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="25" value="" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/other/Load_Testing.svg;" parent="1" vertex="1">
+                    <mxGeometry x="50" y="350" width="59.199999999999996" height="68" as="geometry"/>
+                </mxCell>
+                <mxCell id="26" value="" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/integration/Service_Bus.svg;" parent="1" vertex="1">
+                    <mxGeometry x="610" y="124" width="68" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="27" value="" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/other/Worker_Container_App.svg;" parent="1" vertex="1">
+                    <mxGeometry x="780" y="120" width="68" height="66" as="geometry"/>
+                </mxCell>
+                <mxCell id="28" value="" style="edgeStyle=none;html=1;" parent="1" source="4" target="37" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="298" y="83.20000000000005" as="sourcePoint"/>
+                        <mxPoint x="400" y="83.79999999999995" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="29" value="" style="edgeStyle=none;html=1;" parent="1" source="26" target="27" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="688" y="97.79999999999995" as="sourcePoint"/>
+                        <mxPoint x="790" y="97.20000000000005" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="30" value="" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/integration/Service_Bus.svg;" parent="1" vertex="1">
+                    <mxGeometry x="610" y="417" width="68" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="31" value="" style="edgeStyle=none;html=1;" parent="1" source="43" target="30" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="298" y="364.4000000000001" as="sourcePoint"/>
+                        <mxPoint x="400" y="338.5999999999999" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="32" value="" style="edgeStyle=none;html=1;" parent="1" source="30" target="33" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="468" y="330.48571428571427" as="sourcePoint"/>
+                        <mxPoint x="610" y="332.51428571428573" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="33" value="" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/other/Worker_Container_App.svg;" parent="1" vertex="1">
+                    <mxGeometry x="780" y="391" width="68" height="66" as="geometry"/>
+                </mxCell>
+                <mxCell id="34" value="" style="edgeStyle=none;html=1;startArrow=classic;startFill=1;dashed=1;" parent="1" source="20" target="33" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="474.6411042944785" y="470" as="sourcePoint"/>
+                        <mxPoint x="610" y="360.50372208436715" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="35" value="Publisher:&lt;br&gt;generates test message for defined payload size" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="176" y="220" width="156" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="36" value="Consumers" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="788" y="220" width="60" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="37" value="" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/integration/Service_Bus.svg;" vertex="1" parent="1">
+                    <mxGeometry x="360" y="75" width="68" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="38" value="" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/other/Worker_Container_App.svg;" vertex="1" parent="1">
+                    <mxGeometry x="470" y="72" width="68" height="66" as="geometry"/>
+                </mxCell>
+                <mxCell id="39" value="" style="edgeStyle=none;html=1;" edge="1" parent="1" source="37" target="38">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="418" y="131.79999999999995" as="sourcePoint"/>
+                        <mxPoint x="520" y="131.20000000000005" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="40" value="" style="edgeStyle=none;html=1;" edge="1" parent="1" source="38" target="26">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="548" y="107.47142857142853" as="sourcePoint"/>
+                        <mxPoint x="620" y="91.52857142857147" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="41" value="Dispatcher" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="478" y="220" width="60" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="42" value="" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/integration/Service_Bus.svg;" vertex="1" parent="1">
+                    <mxGeometry x="360" y="353" width="68" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="43" value="" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/other/Worker_Container_App.svg;" vertex="1" parent="1">
+                    <mxGeometry x="490" y="350" width="68" height="66" as="geometry"/>
+                </mxCell>
+                <mxCell id="44" value="" style="edgeStyle=none;html=1;" edge="1" parent="1" source="43" target="16">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="568" y="411.13333333333344" as="sourcePoint"/>
+                        <mxPoint x="620" y="438.8666666666668" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="45" value="" style="edgeStyle=none;html=1;" edge="1" parent="1" source="42" target="43">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="438" y="115" as="sourcePoint"/>
+                        <mxPoint x="480" y="115" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
