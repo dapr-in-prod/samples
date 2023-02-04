@@ -103,7 +103,7 @@ This section describes how to generally deploy infrastructure and sample applica
 
 1. change into the folder of the desired sample e.g. `cd ./chapter-2/infra/aca-terraform`
 1. be sure to clear previous state with `rm .terraform.lock.hcl` and `rm -rf .terraform`
-1. configure state store and initialize e.g. with Azure storage `../scripts/az-tfstate.sh {location}` where _location_ sets the region, where the state store is placed (otherwise eastus will be used as a default)
+1. configure state store and initialize e.g. with Azure storage `$(git rev-parse --show-toplevel)/common/scripts/az-tfstate.sh {location}` where _location_ sets the region, where the state store is placed (otherwise eastus will be used as a default)
 1. create `terraform.tfvars` to define desired resource group and location/region or generate with `terraform-docs tfvars hcl . >./terraform.tfvars`
 
 ```terraform
@@ -125,6 +125,14 @@ secretstore_admins       = ["00000000-0000-0000-0000-000000000000"]
 ----
 
 ## Helpers
+
+### set Terraform Azure Storage State backend
+
+`cd` to the folder which holds the Terraform modules e.g. `cd ./chapter-2/infra/aks-terraform` and then:
+
+```shell
+$(git rev-parse --show-toplevel)/common/scripts/az-tfstate.sh {location}
+```
 
 ### remove local Terraform state
 
