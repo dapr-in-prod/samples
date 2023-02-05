@@ -1,8 +1,13 @@
 provider "kind" {
 }
 
+resource "docker_network" "kind" {
+  name   = "kind"
+  driver = "bridge"
+}
+
 resource "kind_cluster" "my_cluster" {
-  name            = "my-dapr-cluster"
+  name            = var.cluster_name
   kubeconfig_path = pathexpand(var.kube_config)
   wait_for_ready  = true
   kind_config {
@@ -12,7 +17,7 @@ resource "kind_cluster" "my_cluster" {
     containerd_config_patches = [
       <<-TOML
         [plugins."io.containerd.grpc.v1.cri".registry.mirrors."localhost:5000"]
-            endpoint = ["http://kind-registry:5000"]
+            endpoint = ["http://${docker_container.kind_registry.hostname}:${var.registry_port}"]
       TOML
     ]
 
@@ -27,7 +32,7 @@ resource "kind_cluster" "my_cluster" {
               node-labels: "ingress-ready=true"
         TOML
       ]
-      
+
       extra_port_mappings {
         container_port = 80
         host_port      = 80
@@ -50,6 +55,6 @@ resource "kind_cluster" "my_cluster" {
   }
 
   depends_on = [
-    docker_container.kind-registry
+    docker_container.kind_registry
   ]
 }

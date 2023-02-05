@@ -1,6 +1,12 @@
+variable "cluster_name" {
+  type        = string
+  default     = "my-dapr-cluster"
+  description = "Name of KinD cluster to deploy"
+}
+
 variable "dapr_deploy" {
-  type = bool
-  default = true
+  type        = bool
+  default     = true
   description = "Indicate whether to deploy Dapr directly with cluster"
 }
 
@@ -17,14 +23,14 @@ variable "dapr_namespace" {
 }
 
 variable "kube_config" {
-  type    = string
-  default = "~/.kube/config"
+  type        = string
+  default     = "~/.kube/config"
   description = "path to kubectl configuration"
 }
 
 variable "ingress_nginx_deploy" {
-  type = bool
-  default = true
+  type        = bool
+  default     = true
   description = "Indicate whether to deploy NGINX ingress controller directly with cluster"
 }
 
@@ -38,4 +44,10 @@ variable "ingress_nginx_namespace" {
   type        = string
   description = "The nginx ingress namespace (it will be created if needed)."
   default     = "ingress-nginx"
+}
+
+variable "registry_port" {
+  type = number
+  description = "Port which local registry uses to listen on."
+  default = 5000
 }

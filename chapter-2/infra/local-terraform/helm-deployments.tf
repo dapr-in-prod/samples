@@ -33,7 +33,7 @@ resource "null_resource" "wait_for_ingress_nginx" {
   provisioner "local-exec" {
     command = <<EOF
       printf "\nWaiting for the nginx ingress controller...\n"
-      kubectl wait --namespace ${helm_release.ingress_nginx.namespace} \
+      kubectl wait --namespace ${helm_release.ingress_nginx[0].namespace} \
         --for=condition=ready pod \
         --selector=app.kubernetes.io/component=controller \
         --timeout=90s
@@ -63,8 +63,4 @@ resource "helm_release" "dapr" {
     name  = "global.tag"
     value = "${var.dapr_version}-mariner"
   }
-
-  depends_on = [
-    kubernetes_namespace.dapr
-  ]
 }
