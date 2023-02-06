@@ -15,7 +15,7 @@ module "common" {
   secretstore_admins         = var.secretstore_admins
 }
 
-module "az-common" {
+module "azcommon" {
   source                     = "../az-common"
   resource_prefix            = var.resource_prefix
   resource_group             = azurerm_resource_group.rg.name

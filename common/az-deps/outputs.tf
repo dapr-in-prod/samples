@@ -39,6 +39,16 @@ output "la_shared_key" {
   sensitive = true
 }
 
+output "ai_instrumentation_key" {
+  value     = azurerm_application_insights.ai.instrumentation_key
+  sensitive = true
+}
+
+output "ai_connection_string" {
+  value     = azurerm_application_insights.ai.connection_string
+  sensitive = true
+}
+
 output "kv_name" {
   value = azurerm_key_vault.kv.name
 }

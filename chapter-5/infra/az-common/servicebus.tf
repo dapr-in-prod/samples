@@ -6,3 +6,19 @@ resource "azurerm_servicebus_namespace" "sb" {
 
   sku = "Standard"
 }
+
+resource "azurerm_servicebus_topic" "load" {
+  name         = "load"
+  namespace_id = azurerm_servicebus_namespace.sb.id
+
+  enable_partitioning = true
+}
+
+resource "azurerm_servicebus_namespace_authorization_rule" "sb_load" {
+  name         = "send_listen"
+  namespace_id = azurerm_servicebus_namespace.sb.id
+
+  listen = true
+  send   = true
+  manage = true
+}

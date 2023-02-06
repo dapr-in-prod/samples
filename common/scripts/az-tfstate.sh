@@ -1,7 +1,9 @@
 #!/bin/bash
 
 RESOURCE_GROUP_NAME=tfstate
-CONTAINER_NAME=${PWD##*/}
+
+# club together relative path name in repo as state container name
+CONTAINER_NAME=`echo ${PWD#$(git rev-parse --show-toplevel)/} | sed 's/\//-/g'`
 
 if [ -z "$1" ]
 then
@@ -15,7 +17,7 @@ if [ $(az group exists --name $RESOURCE_GROUP_NAME) = false ]; then
     az group create --name $RESOURCE_GROUP_NAME --location $LOCATION
 fi
 
-EXISTING_STORAGE_ACCOUNT_NAME=`az storage account list -g $RESOURCE_GROUP_NAME --query [0].name -o tsv`
+EXISTING_STORAGE_ACCOUNT_NAME=`az storage account list -g $RESOURCE_GROUP_NAME --query "[0].name" -o tsv`
 
 if [ -z $EXISTING_STORAGE_ACCOUNT_NAME ]; 
 then
@@ -33,7 +35,7 @@ then
     az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME
 fi
 
-ACCOUNT_KEY=$(az storage account keys list --resource-group $RESOURCE_GROUP_NAME --account-name $STORAGE_ACCOUNT_NAME --query '[0].value' -o tsv)
+ACCOUNT_KEY=$(az storage account keys list --resource-group $RESOURCE_GROUP_NAME --account-name $STORAGE_ACCOUNT_NAME --query "[0].value" -o tsv)
 
 terraform init \
 -backend-config="resource_group_name=$RESOURCE_GROUP_NAME" \
