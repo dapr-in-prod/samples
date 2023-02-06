@@ -28,6 +28,12 @@ variable "kube_config" {
   description = "path to kubectl configuration"
 }
 
+variable "docker_host" {
+  type = string
+  default = "unix:///var/run/docker.sock"
+  description = "docker host path. Common values: unix:///var/run/docker.sock, tcp://localhost:2375"
+}
+
 variable "ingress_nginx_deploy" {
   type        = bool
   default     = true
