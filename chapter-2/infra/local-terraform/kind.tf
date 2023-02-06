@@ -2,7 +2,7 @@ provider "kind" {
 }
 
 resource "docker_network" "kind" {
-  name   = "kind"
+  name   = "kind_network"
   driver = "bridge"
 }
 

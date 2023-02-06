@@ -1,5 +1,5 @@
 provider "docker" {
-  host = "unix:///var/run/docker.sock"
+  host = var.docker_host
 }
 
 resource "docker_container" "kind_registry" {
