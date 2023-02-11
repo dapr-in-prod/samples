@@ -5,18 +5,14 @@ REVISION=`date +"%s"`
 
 source <(terraform -chdir=$TARGET_INFRA_FOLDER output --json | jq -r 'keys[] as $k | "\($k|ascii_upcase)=\(.[$k] | .value)"')
 
-if [ $(az group exists --name $RESOURCE_GROUP) = true ];
+if [ ! $(az group exists --name $RESOURCE_GROUP) = true ];
 then
-    ACR_NAME=`az acr list -g $RESOURCE_GROUP --query "[0].name" -o tsv`
-    ACR_LOGINSERVER=`az acr list -g $RESOURCE_GROUP --query "[0].loginServer" -o tsv`
-    ACA_NAME=`az containerapp env list -g $RESOURCE_GROUP --query "[0].name" -o tsv`
-    ACR_PULL_ID=`az identity list -g $RESOURCE_GROUP --query "[?contains(name,'acrpull')].id" -o tsv`
-    KV_CONSUMER_ID=`az identity list -g $RESOURCE_GROUP --query "[?contains(name,'kvconsumer')].id" -o tsv`
-else
     echo "$RESOURCE_GROUP not found"
+    exit 1
 fi
 
-echo "Registry: $ACR_NAME | Container Apps Environment: $ACA_NAME"
+echo "Registry: $ACR_NAME"
+echo "Container Apps Environment: $ACA_NAME"
 
 declare -a APPS=("sender" "receiver")
 
@@ -29,11 +25,11 @@ do
         if [ "$1" == "build" ];
         then
             az acr build -r $ACR_NAME -g $RESOURCE_GROUP \
-                -t $APP_NAME:$REVISION -t $APP_NAME:latest $APP_NAME\
-
-            IMAGE=$ACR_LOGINSERVER/$APP_NAME:$REVISION
+                -t $APP_NAME:$REVISION $APP_NAME
+            IMAGE=$ACR_LOGIN_SERVER/$APP_NAME:$REVISION
         else
-            IMAGE=$ACR_LOGINSERVER/$APP_NAME:latest
+            TAG=`az acr repository show-tags -n $ACR_NAME --repository $APP_NAME --top 1 --orderby time_desc -o tsv`
+            IMAGE=$ACR_LOGIN_SERVER/$APP_NAME:$TAG
         fi
 
         if [ -z $(az containerapp list --environment $ACA_NAME -g $RESOURCE_GROUP --query '[?name == "$APP_NAME"].id' -o tsv)];
@@ -41,12 +37,10 @@ do
             az containerapp create -n $APP_NAME -g $RESOURCE_GROUP \
                 --environment $ACA_NAME \
                 --min-replicas 1 --max-replicas 1 \
-                --registry-server $ACR_LOGINSERVER --registry-identity $ACR_PULL_ID \
+                --registry-server $ACR_LOGIN_SERVER --registry-identity $ACR_PULL_ID \
                 --user-assigned $KV_CONSUMER_ID \
-                --env-vars APP_PORT=5000 \
-                --ingress external --target-port 5000 \
-                --enable-dapr --dapr-app-id $APP_NAME --dapr-app-port 5000 \
-                --dapr-enable-api-logging \
+                --ingress external --target-port 5001 \
+                --enable-dapr --dapr-app-id $APP_NAME --dapr-app-port 5001 \
                 --image $IMAGE \
                 --revision-suffix ts$REVISION
         else
@@ -60,7 +54,7 @@ done
 for APP_NAME in "${APPS[@]}"
 do
     FQDN=`az containerapp show -n $APP_NAME -g $RESOURCE_GROUP --query properties.configuration.ingress.fqdn -o tsv`
-    echo "Health test: wget -q -O- http://$FQDN/health"
+    echo "Health test: wget -q -O- https://$FQDN/health"
 done
 
 

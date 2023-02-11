@@ -1,4 +1,4 @@
-FROM node:18
+FROM node:16
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -15,5 +15,4 @@ RUN npm install
 # Bundle app source
 COPY . .
 
-EXPOSE 5001
 CMD [ "node", "index.js" ]

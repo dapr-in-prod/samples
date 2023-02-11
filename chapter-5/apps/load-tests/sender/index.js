@@ -1,6 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import { DaprClient } from '@dapr/dapr';
+import { faker } from '@faker-js/faker';
 
 const DAPR_HOST = process.env.DAPR_HOST || "http://localhost";
 const DAPR_HTTP_PORT = process.env.DAPR_HTTP_PORT || "3500";
@@ -13,16 +14,28 @@ app.get('/health', (req, res) => {
     res.status(200).send('Ok');
 });
 
+function createRandomOrder() {
+    return {
+        orderId: faker.datatype.uuid(),
+        email: faker.internet.email(),
+        name: faker.name.fullName(),
+    };
+}
+
 app.get('/send', async (req, res) => {
     const client = new DaprClient(DAPR_HOST, DAPR_HTTP_PORT);
 
-    const order = {
-        orderId: 1
-    };
+    const pubSubName = req.query.pubsubname || "pubsub-loadtest";
+    const count = req.query.count || 1;
 
-    let response = await client.pubsub.publish("pubsub-loadtest", "load", order);
+    const order = createRandomOrder();
 
-    res.status(200).send('Ok');
+    for (var i = 0; i < count; i++) {
+        let response = await client.pubsub.publish(pubSubName, "load", order);
+    }
+
+    res.status(200).send(pubSubName);
 });
 
+console.log('Sender listening on port %d', APP_PORT);
 app.listen(APP_PORT);

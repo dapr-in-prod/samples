@@ -14,9 +14,9 @@ resource "azurerm_servicebus_topic" "load" {
   enable_partitioning = true
 }
 
-resource "azurerm_servicebus_namespace_authorization_rule" "sb_load" {
+resource "azurerm_servicebus_topic_authorization_rule" "sb_load" {
   name         = "send_listen"
-  namespace_id = azurerm_servicebus_namespace.sb.id
+  topic_id = azurerm_servicebus_topic.load.id
 
   listen = true
   send   = true

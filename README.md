@@ -143,3 +143,8 @@ find . -name .terraform* -type d | xargs -i rm -rf {}
 find . -name .terraform* -type f
 ```
 
+### remove all Container Apps prior to `terraform destroy`
+
+```shell
+az containerapp delete --id $(az containerapp list -o tsv -g {resourceGroup} --query "[].id") -y
+```
