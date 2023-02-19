@@ -23,7 +23,7 @@ output "acr_pull_id" {
 }
 
 output "aca_name" {
-  value = azapi_resource.aca_env.name
+  value = azurerm_container_app_environment.aca_env.name
 }
 
 output "kv_consumer_id" {

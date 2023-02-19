@@ -28,10 +28,10 @@ app.get('/send', async (req, res) => {
     const pubSubName = req.query.pubsubname || "pubsub-loadtest";
     const count = req.query.count || 1;
 
-    const order = createRandomOrder();
-
     for (var i = 0; i < count; i++) {
+        const order = createRandomOrder();
         let response = await client.pubsub.publish(pubSubName, "load", order);
+        console.log(`send order ${order.orderId} response ${true}`);
     }
 
     res.status(200).send(pubSubName);
