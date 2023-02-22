@@ -6,31 +6,29 @@ REVISION=`date +"%s"`
 
 source <(terraform -chdir=$TARGET_INFRA_FOLDER output --json | jq -r 'keys[] as $k | "\($k|ascii_upcase)=\(.[$k] | .value)"')
 
-echo -e "App Id + Image: $APP_NAME\nResource Group: $RESOURCE_GROUP"
-
-if [ $(az group exists --name $RESOURCE_GROUP) = true ];
+if [ ! $(az group exists --name $RESOURCE_GROUP) = true ];
 then
-    ACR_NAME=`az acr list -g $RESOURCE_GROUP --query [0].name -o tsv`
-    ACR_LOGINSERVER=`az acr list -g $RESOURCE_GROUP --query [0].loginServer -o tsv`
-    ACA_NAME=`az containerapp env list -g $RESOURCE_GROUP --query '[0].name' -o tsv`
-    ACR_PULL_ID=`az identity list -g $RESOURCE_GROUP --query "[?contains(name,'acrpull')].id" -o tsv`
-    KV_CONSUMER_ID=`az identity list -g $RESOURCE_GROUP --query "[?contains(name,'kvconsumer')].id" -o tsv`
-else
     echo "$RESOURCE_GROUP not found"
+    exit 1
 fi
 
-echo "Registry: $ACR_NAME | Container Apps Environment: $ACA_NAME"
+echo "Resource Group:             $RESOURCE_GROUP"
+echo "Registry:                   $ACR_NAME"
+echo "                            $ACR_LOGIN_SERVER"
+echo "                            $ACR_PULL_ID"
+echo "Container Apps Environment: $ACA_NAME"
+echo "App Id + Image:             $APP_NAME"
 
 if [ ! -z "$ACR_NAME" ] && [ ! -z "$ACA_NAME" ];
 then
     if [ "$1" == "build" ];
     then
         az acr build -r $ACR_NAME -g $RESOURCE_GROUP \
-            -t $APP_NAME:$REVISION -t $APP_NAME:latest .
-
-        IMAGE=$ACR_LOGINSERVER/$APP_NAME:$REVISION
+            -t $APP_NAME:$REVISION .
+        IMAGE=$ACR_LOGIN_SERVER/$APP_NAME:$REVISION
     else
-        IMAGE=$ACR_LOGINSERVER/$APP_NAME:latest
+        TAG=`az acr repository show-tags -n $ACR_NAME --repository $APP_NAME --top 1 --orderby time_desc -o tsv`
+        IMAGE=$ACR_LOGIN_SERVER/$APP_NAME:$TAG
     fi
 
     if [ -z $(az containerapp list --environment $ACA_NAME -g $RESOURCE_GROUP --query '[?name == "$APP_NAME"].id' -o tsv)];
@@ -38,8 +36,7 @@ then
         az containerapp create -n $APP_NAME -g $RESOURCE_GROUP \
             --environment $ACA_NAME \
             --min-replicas 1 --max-replicas 1 \
-            --registry-server $ACR_LOGINSERVER --registry-identity $ACR_PULL_ID \
-            --user-assigned $KV_CONSUMER_ID \
+            --registry-server $ACR_LOGIN_SERVER --registry-identity $ACR_PULL_ID \
             --ingress external --target-port 5001 \
             --enable-dapr --dapr-app-id $APP_NAME --dapr-app-port 5001 \
             --image $IMAGE
@@ -50,6 +47,7 @@ then
 
     FQDN=`az containerapp show -n $APP_NAME -g $RESOURCE_GROUP --query properties.configuration.ingress.fqdn -o tsv`
     echo "Health test: wget -q -O- https://$FQDN/health"
-    echo "Secret test: wget -q -O- https://$FQDN/show-secret"
-
 fi
+
+
+
