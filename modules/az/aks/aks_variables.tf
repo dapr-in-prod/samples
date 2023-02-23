@@ -18,17 +18,29 @@ variable "tags" {
   type        = map(string)
 }
 
+variable "kube_config_path" {
+  type        = string
+  default     = "~/.kube/config"
+  description = "Path to kubectl configuration"
+}
+
+variable "cluster_admins" {
+  type = list(string)
+  default = []
+  description = "List of cluster administrators"
+}
+
 variable "loganalytics_id" {
   description = "Resource Id of Log Analytics."
   type        = string
 }
 
-variable "keyvault_name" {
-  description = "Key Vault name to be used in secretstores.azure.keyvault."
+variable "loganalytics_name" {
+  description = "Resource name of Log Analytics."
   type        = string
 }
 
-variable "kv_consumer_client_id" {
-  description = "Key Vault consuming user identity's client id to be used in secretstores.azure.keyvault."
+variable "acr_id" {
+  description = "Resource Id of Container Registry."
   type        = string
 }

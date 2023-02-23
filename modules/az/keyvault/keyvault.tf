@@ -2,7 +2,7 @@ data "azurerm_client_config" "current" {}
 
 resource "azurerm_key_vault" "kv" {
   name                = "${var.resource_prefix}-kv"
-  resource_group_name = var.rg_name
+  resource_group_name = var.resource_group_name
   location            = var.location
   tags                = var.tags
 
@@ -29,7 +29,7 @@ resource "azurerm_role_assignment" "kv_sp_admin_assignment" {
 
 resource "azurerm_user_assigned_identity" "kv_consumer_identity" {
   name                = "kvconsumer-${var.resource_prefix}"
-  resource_group_name = var.rg_name
+  resource_group_name = var.resource_group_name
   location            = var.location
   tags                = var.tags
 }

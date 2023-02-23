@@ -8,7 +8,7 @@ resource "docker_network" "kind" {
 
 resource "kind_cluster" "my_cluster" {
   name            = var.cluster_name
-  kubeconfig_path = pathexpand(var.kube_config)
+  kubeconfig_path = pathexpand(var.kube_config_path)
   wait_for_ready  = true
   kind_config {
     kind        = "Cluster"

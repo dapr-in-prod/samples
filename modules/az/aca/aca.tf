@@ -1,6 +1,6 @@
 resource "azurerm_container_app_environment" "aca_env" {
   name                = "${var.resource_prefix}-aca"
-  resource_group_name = var.rg_name
+  resource_group_name = var.resource_group_name
   location            = var.location
   tags                = var.tags
 

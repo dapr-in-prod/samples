@@ -11,23 +11,18 @@ SUBSCRIPTION_ID=`az account show --query id -o tsv`
 
 source <(terraform -chdir=$TARGET_INFRA_FOLDER output --json | jq -r 'keys[] as $k | "\($k|ascii_upcase)=\(.[$k] | .value)"')
 
-echo -e "App Id + Image: $APP_NAME\nResource Group: $RESOURCE_GROUP"
+echo "App Id + Image: $APP_NAME"
+echo "Resource Group: $RESOURCE_GROUP"
+echo "Registry: $ACR_NAME"
+echo "Cluster: $CLUSTER_NAME"
+echo "Key Vault: $KV_NAME"
 
-if [ $(az group exists --name $RESOURCE_GROUP) = true ];
+if [ ! $(az group exists --name $RESOURCE_GROUP) = true ];
 then
-    ACR_NAME=`az acr list -g $RESOURCE_GROUP --query [0].name -o tsv`
-    ACR_LOGINSERVER=`az acr list -g $RESOURCE_GROUP --query [0].loginServer -o tsv`
-    CLUSTER_NAME=`az aks list -g $RESOURCE_GROUP --query [0].name -o tsv`
-    KV_NAME=`az keyvault list -g $RESOURCE_GROUP --query [0].name -o tsv`
-    KV_FQDN=`az keyvault show -g $RESOURCE_GROUP -n $KV_NAME --query properties.vaultUri -o tsv | sed -e 's|^[^/]*//||' -e 's|/.*$||'`
-    KV_CONSUMER_NAME=`az identity list -g $RESOURCE_GROUP --query "[?contains(name,'kvconsumer')].name" -o tsv`
-    KV_CONSUMER_ID=`az identity list -g $RESOURCE_GROUP --query "[?contains(name,'kvconsumer')].id" -o tsv`
-    KV_CONSUMER_CLIENT_ID=`az identity list -g $RESOURCE_GROUP --query "[?contains(name,'kvconsumer')].clientId" -o tsv`
-else
     echo "$RESOURCE_GROUP not found"
 fi
 
-echo "Registry: $ACR_NAME | Cluster: $CLUSTER_NAME | Key Vault: $KV_NAME"
+KV_FQDN=`az keyvault show -g $RESOURCE_GROUP -n $KV_NAME --query properties.vaultUri -o tsv | sed -e 's|^[^/]*//||' -e 's|/.*$||'`
 
 if [ -z "$ACR_NAME" ] || [ -z "$CLUSTER_NAME" ] || [ -z "$KV_NAME" ];
 then
@@ -38,10 +33,10 @@ if [ "$1" == "build" ];
 then
   az acr build -r $ACR_NAME -g $RESOURCE_GROUP \
       -t $APP_NAME:$REVISION -t $APP_NAME:latest .
-
-  IMAGE=$ACR_LOGINSERVER/$APP_NAME:$REVISION
+        IMAGE=$ACR_LOGIN_SERVER/$APP_NAME:$REVISION
 else
-  IMAGE=$ACR_LOGINSERVER/$APP_NAME:latest
+  TAG=`az acr repository show-tags -n $ACR_NAME --repository $APP_NAME --top 1 --orderby time_desc -o tsv`
+  IMAGE=$ACR_LOGIN_SERVER/$APP_NAME:$TAG
 fi
 
 cat <<EOF | kubectl apply -f -
@@ -125,3 +120,8 @@ spec:
   - name: vaultName
     value: ${KV_FQDN}
 EOF
+
+kubectl wait --selector=app=$APP_NAME --for=condition=ready pod --namespace=$NAMESPACE
+IP=`kubectl get svc $APP_NAME -o jsonpath="{.status.loadBalancer.ingress[0].ip}" --namespace $NAMESPACE`
+PORT=`kubectl get svc $APP_NAME -o jsonpath="{.spec.ports[0].targetPort}" --namespace $NAMESPACE`
+echo "Health URL: curl http://$IP:$PORT/health"

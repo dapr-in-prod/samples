@@ -1,6 +1,6 @@
 resource "azurerm_log_analytics_workspace" "log" {
   name                = "${var.resource_prefix}-log"
-  resource_group_name = var.rg_name
+  resource_group_name = var.resource_group_name
   location            = var.location
   tags                = var.tags
 

@@ -22,10 +22,10 @@ variable "dapr_namespace" {
   description = "Kubernetes namespace to install Dapr in"
 }
 
-variable "kube_config" {
+variable "kube_config_path" {
   type        = string
   default     = "~/.kube/config"
-  description = "path to kubectl configuration"
+  description = "Path to kubectl configuration"
 }
 
 variable "docker_host" {

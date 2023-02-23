@@ -1,15 +1,10 @@
-# assign roles required for AAD pod identity
-
-data "azurerm_user_assigned_identity" "agentpool" {
-  name                = "${azurerm_kubernetes_cluster.aks.name}-agentpool"
-  resource_group_name = azurerm_kubernetes_cluster.aks.node_resource_group
-  depends_on = [
-    azurerm_kubernetes_cluster.aks
-  ]
+data "azurerm_resource_group" "node_rg" {
+  name = var.node_resource_group
 }
 
-data "azurerm_resource_group" "node_rg" {
-  name = azurerm_kubernetes_cluster.aks.node_resource_group
+data "azurerm_user_assigned_identity" "agentpool" {
+  name                = "${var.cluster_name}-agentpool"
+  resource_group_name = data.azurerm_resource_group.node_rg.name
 }
 
 resource "azurerm_role_assignment" "agentpool_mio_node_rg" {
@@ -28,11 +23,10 @@ resource "azurerm_role_assignment" "agentpool_vmc_node_rg" {
 }
 
 resource "azurerm_role_assignment" "agentpool_mio_rg" {
-  scope                            = azurerm_resource_group.rg.id
+  scope                            = var.resource_group_id
   role_definition_name             = "Managed Identity Operator"
   principal_id                     = data.azurerm_user_assigned_identity.agentpool.principal_id
   skip_service_principal_aad_check = true
-
 }
 
 # determine chart url from https://github.com/Azure/aad-pod-identity/tree/master/charts
@@ -41,7 +35,7 @@ resource "azurerm_role_assignment" "agentpool_mio_rg" {
 
 resource "helm_release" "aad-pod-identity" {
   name      = "mic-aad-pod-identity"
-  chart     = "https://github.com/Azure/aad-pod-identity/raw/master/charts/aad-pod-identity-4.1.14.tgz"
+  chart     = "https://github.com/Azure/aad-pod-identity/raw/master/charts/aad-pod-identity-4.1.15.tgz"
   namespace = "kube-system"
   timeout   = 1200
 

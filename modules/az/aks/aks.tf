@@ -5,9 +5,10 @@ data "azurerm_client_config" "current" {}
 resource "random_pet" "akssuffix" {}
 
 resource "azurerm_kubernetes_cluster" "aks" {
-  name                = var.resource_prefix
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  name                = "${var.resource_prefix}-aks"
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  tags                = var.tags
   dns_prefix          = "${var.resource_prefix}-${random_pet.akssuffix.id}"
 
   default_node_pool {
@@ -29,18 +30,16 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   oms_agent {
-    log_analytics_workspace_id = module.common.la_id
+    log_analytics_workspace_id = var.loganalytics_id
   }
-
-  tags = local.tags
 }
 
 resource "azurerm_log_analytics_solution" "aks_insights" {
   solution_name         = "ContainerInsights"
-  resource_group_name   = azurerm_resource_group.rg.name
-  location              = azurerm_resource_group.rg.location
-  workspace_resource_id = module.common.la_id
-  workspace_name        = module.common.la_name
+  resource_group_name   = var.resource_group_name
+  location              = var.location
+  workspace_resource_id = var.loganalytics_id
+  workspace_name        = var.loganalytics_name
 
   plan {
     publisher = "Microsoft"
@@ -61,6 +60,6 @@ resource "azurerm_role_assignment" "aks_admin_role_assignment" {
 
 resource "azurerm_role_assignment" "acr_role_assignment" {
   principal_id         = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
-  scope                = module.common.acr_id
+  scope                = var.acr_id
   role_definition_name = "AcrPull"
 }

@@ -13,7 +13,7 @@ resource "azurerm_resource_group" "rg" {
 module "loganalytics" {
   source          = "../../../modules/az/loganalytics"
   location        = var.location
-  rg_name         = azurerm_resource_group.rg.name
+  resource_group_name         = azurerm_resource_group.rg.name
   tags            = local.tags
   resource_prefix = var.resource_prefix
 }
@@ -21,7 +21,7 @@ module "loganalytics" {
 module "keyvault" {
   source                     = "../../../modules/az/keyvault"
   location                   = var.location
-  rg_name                    = azurerm_resource_group.rg.name
+  resource_group_name                    = azurerm_resource_group.rg.name
   tags                       = local.tags
   resource_prefix            = var.resource_prefix
   purge_protection_enabled   = var.purge_protection_enabled
@@ -32,7 +32,7 @@ module "keyvault" {
 module "aca" {
   source                    = "../../../modules/az/aca"
   location                  = var.location
-  rg_name                   = azurerm_resource_group.rg.name
+  resource_group_name                   = azurerm_resource_group.rg.name
   tags                      = local.tags
   resource_prefix           = var.resource_prefix
   loganalytics_id           = module.loganalytics.LOGANALYTICS_ID
@@ -43,7 +43,7 @@ module "aca" {
 module "acr" {
   source          = "../../../modules/az/acr"
   location        = var.location
-  rg_name         = azurerm_resource_group.rg.name
+  resource_group_name         = azurerm_resource_group.rg.name
   tags            = local.tags
   resource_prefix = var.resource_prefix
 }

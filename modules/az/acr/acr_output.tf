@@ -1,3 +1,7 @@
+output "CONTAINER_REGISTRY_ID" {
+  value = azurerm_container_registry.acr.id
+}
+
 output "CONTAINER_REGISTRY_NAME" {
   value = azurerm_container_registry.acr.name
 }

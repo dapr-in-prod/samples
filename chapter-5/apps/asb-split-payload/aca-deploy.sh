@@ -49,6 +49,6 @@ then
     fi
 
     FQDN=`az containerapp show -n $APP_NAME -g $RESOURCE_GROUP --query properties.configuration.ingress.fqdn -o tsv`
-    echo "Health test: wget -q -O- http://$FQDN/health"
+    echo "Health test: curl http://$FQDN/health"
 
 fi
