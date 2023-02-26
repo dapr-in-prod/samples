@@ -3,6 +3,11 @@ variable "location" {
   type        = string
 }
 
+variable "resource_group_id" {
+  description = "Resource Id of the resource group to deploy resources into"
+  type        = string
+}
+
 variable "resource_group_name" {
   description = "The name of the resource group to deploy resources into"
   type        = string
@@ -18,23 +23,18 @@ variable "tags" {
   type        = map(string)
 }
 
-variable "cluster_admins" {
-  type = list(string)
-  default = []
-  description = "List of cluster administrators"
+variable "app_namespace" {
+  type        = string
+  default     = "dip"
+  description = "Kubernetes namespace to install sample application in"
 }
 
-variable "loganalytics_id" {
-  description = "Resource Id of Log Analytics."
+variable "gateway_id" {
+  description = "Resource Id of Application Gateway to link AGIC to"
   type        = string
 }
 
-variable "loganalytics_name" {
-  description = "Resource name of Log Analytics."
-  type        = string
-}
-
-variable "acr_id" {
-  description = "Resource Id of Container Registry."
+variable "gateway_name" {
+  description = "The name Application Gateway to link AGIC to"
   type        = string
 }

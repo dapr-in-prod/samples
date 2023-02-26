@@ -18,23 +18,26 @@ variable "tags" {
   type        = map(string)
 }
 
-variable "cluster_admins" {
-  type = list(string)
-  default = []
-  description = "List of cluster administrators"
+variable "frontend_port" {
+  type        = number
+  default     = 8080
+  description = "Front End port number"
 }
 
-variable "loganalytics_id" {
-  description = "Resource Id of Log Analytics."
+variable "vnet_ingress_address_space" {
   type        = string
+  default     = "10.254.0.0/16"
+  description = "Virtual network address space for ingress"
 }
 
-variable "loganalytics_name" {
-  description = "Resource name of Log Analytics."
+variable "vnet_ingress_frontend_subnet" {
   type        = string
+  default     = "10.254.0.0/24"
+  description = "Subnet address space for ingress frontend (AppGw)"
 }
 
-variable "acr_id" {
-  description = "Resource Id of Container Registry."
+variable "vnet_ingress_backend_subnet" {
   type        = string
+  default     = "10.254.2.0/24"
+  description = "Subnet address space for ingress backend (AKS nodepool)"
 }

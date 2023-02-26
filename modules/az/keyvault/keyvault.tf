@@ -28,7 +28,7 @@ resource "azurerm_role_assignment" "kv_sp_admin_assignment" {
 }
 
 resource "azurerm_user_assigned_identity" "kv_consumer_identity" {
-  name                = "kvconsumer-${var.resource_prefix}"
+  name                = "${var.resource_prefix}-kvconsumer"
   resource_group_name = var.resource_group_name
   location            = var.location
   tags                = var.tags

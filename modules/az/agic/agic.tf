@@ -5,20 +5,23 @@
 # --
 # https://github.com/denniszielke/container_demos/blob/master/terraform_agic/agic.tf
 
+data "azurerm_client_config" "current" {}
+
 resource "helm_release" "ingress-azure" {
-  name       = "agic"
-  chart      = "ingress-azure"
-  repository = "https://appgwingress.blob.core.windows.net/ingress-azure-helm-package"
-  timeout    = 1200
+  name         = "agic"
+  chart        = "ingress-azure"
+  repository   = "https://appgwingress.blob.core.windows.net/ingress-azure-helm-package"
+  timeout      = 1200
+  force_update = true
 
   set {
     name  = "appgw.name"
-    value = azurerm_application_gateway.gw.name
+    value = var.gateway_name
   }
 
   set {
     name  = "appgw.resourceGroup"
-    value = azurerm_resource_group.rg.name
+    value = var.resource_group_name
   }
 
   set {
@@ -55,34 +58,23 @@ resource "helm_release" "ingress-azure" {
     name  = "rbac.enabled"
     value = "true"
   }
-
-  set {
-    name  = "kubernetes.watchNamespace"
-    value = var.app_namespace
-  }
-
-  depends_on = [
-    helm_release.aad-pod-identity
-  ]
 }
 
 resource "azurerm_user_assigned_identity" "agicidentity" {
   name                = "${var.resource_prefix}-agic-id"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-
-  tags = local.tags
-
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  tags                = var.tags
 }
 
 resource "azurerm_role_assignment" "agicidentityappgw" {
-  scope                = azurerm_application_gateway.gw.id
+  scope                = var.gateway_id
   role_definition_name = "Contributor"
   principal_id         = azurerm_user_assigned_identity.agicidentity.principal_id
 }
 
 resource "azurerm_role_assignment" "agicidentityappgwgroup" {
-  scope                = azurerm_resource_group.rg.id
+  scope                = var.resource_group_id
   role_definition_name = "Reader"
   principal_id         = azurerm_user_assigned_identity.agicidentity.principal_id
 }

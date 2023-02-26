@@ -18,6 +18,11 @@ variable "tags" {
   type        = map(string)
 }
 
+variable "backend_subnet_id" {
+  type        = string
+  description = "Resource Id of backend subnet"
+}
+
 variable "cluster_admins" {
   type = list(string)
   default = []

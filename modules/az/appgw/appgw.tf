@@ -1,30 +1,30 @@
 resource "azurerm_virtual_network" "vnet" {
   name                = "${var.resource_prefix}-net"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  tags                = var.tags
   address_space       = [var.vnet_ingress_address_space]
-
-  tags = local.tags
 }
 
 resource "azurerm_subnet" "frontend" {
   name                 = "frontend"
-  resource_group_name  = azurerm_resource_group.rg.name
+  resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = [var.vnet_ingress_frontend_subnet]
 }
 
 resource "azurerm_subnet" "backend" {
   name                 = "backend"
-  resource_group_name  = azurerm_resource_group.rg.name
+  resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = [var.vnet_ingress_backend_subnet]
 }
 
 resource "azurerm_public_ip" "ingress" {
   name                = "${var.resource_prefix}-pip"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  tags                = var.tags
   sku                 = "Standard"
   allocation_method   = "Static"
 }
@@ -41,8 +41,9 @@ locals {
 
 resource "azurerm_application_gateway" "gw" {
   name                = "${var.resource_prefix}-appgw"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  tags                = var.tags
 
   sku {
     name     = "Standard_v2"
@@ -57,7 +58,7 @@ resource "azurerm_application_gateway" "gw" {
 
   frontend_port {
     name = local.frontend_port_name
-    port = 80
+    port = var.frontend_port
   }
 
   frontend_ip_configuration {
@@ -91,6 +92,4 @@ resource "azurerm_application_gateway" "gw" {
     frontend_port_name             = local.frontend_port_name
     protocol                       = "Http"
   }
-
-  tags = local.tags
 }

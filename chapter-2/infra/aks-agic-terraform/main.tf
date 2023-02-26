@@ -1,9 +1,3 @@
-locals {
-  tags = {
-    "project" = "dapr-in-prod"
-  }
-}
-
 resource "azurerm_resource_group" "rg" {
   name     = var.resource_group
   location = var.location
@@ -29,13 +23,25 @@ module "keyvault" {
   secretstore_admins         = var.secretstore_admins
 }
 
+module "appgw" {
+  source                       = "../../../modules/az/appgw"
+  location                     = var.location
+  resource_group_name          = azurerm_resource_group.rg.name
+  tags                         = var.tags
+  resource_prefix              = var.resource_prefix
+  vnet_ingress_address_space   = var.vnet_ingress_address_space
+  vnet_ingress_frontend_subnet = var.vnet_ingress_frontend_subnet
+  vnet_ingress_backend_subnet  = var.vnet_ingress_backend_subnet
+}
+
 module "aks" {
-  source              = "../../../modules/az/aks"
+  source              = "../../../modules/az/aks_isolated"
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
   tags                = var.tags
   resource_prefix     = var.resource_prefix
   cluster_admins      = var.cluster_admins
+  backend_subnet_id   = module.appgw.BACKEND_SUBNET_ID
   loganalytics_id     = module.loganalytics.LOGANALYTICS_ID
   loganalytics_name   = module.loganalytics.LOGANALYTICS_NAME
   acr_id              = module.acr.CONTAINER_REGISTRY_ID
@@ -61,6 +67,24 @@ module "aad_pod_identity" {
   }
   depends_on = [
     module.aks
+  ]
+}
+
+module "agic" {
+  source              = "../../../modules/az/agic"
+  location            = var.location
+  resource_group_id   = azurerm_resource_group.rg.id
+  resource_group_name = azurerm_resource_group.rg.name
+  resource_prefix     = var.resource_prefix
+  tags                = var.tags
+  app_namespace       = var.app_namespace
+  gateway_id          = module.appgw.GATEWAY_ID
+  gateway_name        = module.appgw.GATEWAY_NAME
+  providers = {
+    helm = helm
+  }
+  depends_on = [
+    module.aad_pod_identity
   ]
 }
 
