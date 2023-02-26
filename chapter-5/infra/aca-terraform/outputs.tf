@@ -11,21 +11,21 @@ output "location" {
 }
 
 output "acr_name" {
-  value = module.common.acr_name
+  value = module.acr.CONTAINER_REGISTRY_NAME
 }
 
 output "acr_login_server" {
-  value = module.common.acr_login_server
+  value = module.acr.CONTAINER_REGISTRY_ENDPOINT
 }
 
 output "acr_pull_id" {
-  value = module.common.acr_pull_id
+  value = module.acr.CONTAINER_REGISTRY_PULL_IDENTITY_ID
 }
 
 output "aca_name" {
-  value = azurerm_container_app_environment.aca_env.name
+  value = module.aca.CONTAINER_APP_ENV_NAME
 }
 
 output "kv_consumer_id" {
-  value = module.common.kv_consumer_id
+  value = module.keyvault.KEYVAULT_CONSUMER_ID
 }
