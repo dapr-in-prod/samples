@@ -16,6 +16,15 @@ variable "resource_prefix" {
   description = "Desired Resource Prefix to be used for all resources"
 }
 
+variable "tags" {
+  type        = map(string)
+  description = "A map of the tags to use on the resources that are deployed with this module."
+
+  default = {
+    project = "dapr-in-prod"
+  }
+}
+
 variable "app_namespace" {
   type        = string
   default     = "dip"
@@ -47,8 +56,8 @@ variable "secretstore_admins" {
 }
 
 variable "dapr_deploy" {
-  type = bool
-  default = false
+  type        = bool
+  default     = false
   description = "Indicate whether to deploy Dapr directly with cluster"
 }
 
@@ -62,12 +71,6 @@ variable "dapr_namespace" {
   type        = string
   default     = "dapr-system"
   description = "Kubernetes namespace to install Dapr in"
-}
-
-variable "cluster_service_cidr" {
-  type        = string
-  default     = "10.2.0.0/24"
-  description = "Virtual network address space for ingress"
 }
 
 variable "vnet_ingress_address_space" {

@@ -16,6 +16,15 @@ variable "resource_prefix" {
   description = "Desired Resource Prefix to be used for all resources"
 }
 
+variable "tags" {
+  type        = map(string)
+  description = "A map of the tags to use on the resources that are deployed with this module."
+
+  default = {
+    project = "dapr-in-prod"
+  }
+}
+
 variable "soft_delete_retention_days" {
   type        = number
   default     = 7
