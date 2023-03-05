@@ -1,0 +1,18 @@
+version: 1
+common:
+  resourcesPath: ./components
+  env:
+    DEBUG: true
+apps:
+  - appID: sender
+    appDirPath: ./sender/
+    appProtocol: http
+    appPort: 5001
+    appHealthCheckPath: "/health" 
+    command: ["npm","run","start"]
+  - appID: receiver
+    appDirPath: ./receiver/
+    appProtocol: http
+    appPort: 5002
+    appHealthCheckPath: "/health" 
+    command: ["npm","run","start"]

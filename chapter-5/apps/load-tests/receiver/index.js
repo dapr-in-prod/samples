@@ -11,7 +11,8 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/dapr/subscribe', (req, res) => {
-    res.json([
+    process.env.DAPR_HOST 
+    ? res.json([
         {
             pubsubname: "pubsub-loadtest-sb",
             topic: "load",
@@ -22,7 +23,15 @@ app.get('/dapr/subscribe', (req, res) => {
             topic: "load",
             route: "receive"
         }
-    ]);
+    ])
+    : res.json([
+        {
+            pubsubname: "pubsub-loadtest",
+            topic: "load",
+            route: "receive"
+        }
+    ])
+    ;
 })
 
 app.post('/receive', (req, res) => {
