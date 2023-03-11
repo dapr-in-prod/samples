@@ -31,7 +31,7 @@ app.get('/send', async (req, res) => {
     for (var i = 0; i < count; i++) {
         const order = createRandomOrder();
         let response = await client.pubsub.publish(pubSubName, "load", order);
-        console.log(`send order ${order.orderId} response ${true}`);
+        console.log(`send order ${order.orderId} response ${response}`);
     }
 
     res.status(200).send(pubSubName);
